@@ -1,0 +1,11 @@
+{
+    "name": "Licitacoes",
+    "alias": "licitacoes",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Licitacoes\\Providers\\LicitacoesServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,8 @@
+{
+    "Auth": true,
+    "Licitacoes": true,
+    "Fornecedores": true,
+    "Consignado": true,
+    "Monitor": true,
+    "Analytics": true
+}

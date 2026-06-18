@@ -1,0 +1,11 @@
+{
+    "name": "Consignado",
+    "alias": "consignado",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Consignado\\Providers\\ConsignadoServiceProvider"
+    ],
+    "files": []
+}
