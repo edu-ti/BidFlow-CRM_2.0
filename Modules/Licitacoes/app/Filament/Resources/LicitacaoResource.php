@@ -28,7 +28,7 @@ class LicitacaoResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Grid::make(2)
+                \Filament\Schemas\Components\Section::make('Informações do Pregão')
                     ->schema([
                         Forms\Components\TextInput::make('numero_edital')
                             ->label('Número do Edital')
@@ -50,20 +50,71 @@ class LicitacaoResource extends Resource
                                 'Outra' => 'Outra',
                             ])
                             ->default('Pregão Eletrônico'),
-                        Forms\Components\TextInput::make('local_disputa')
-                            ->label('Local da Disputa')
-                            ->maxLength(255),
                         Forms\Components\TextInput::make('uasg')
                             ->label('UASG')
                             ->maxLength(255),
-                    ]),
+                        Forms\Components\TextInput::make('local_disputa')
+                            ->label('Local da Disputa')
+                            ->maxLength(255),
+                        Forms\Components\Select::make('status')
+                            ->label('Status')
+                            ->options([
+                                'Em análise' => 'Em análise',
+                                'Acolhimento de propostas' => 'Acolhimento de propostas',
+                                'Homologado' => 'Homologado',
+                                'Revogado' => 'Revogado',
+                                'Fracassado' => 'Fracassado',
+                                'Anulado' => 'Anulado',
+                                'Adjudicado' => 'Adjudicado',
+                                'Suspenso' => 'Suspenso',
+                            ])
+                            ->default('Em análise')
+                            ->required(),
+                        Forms\Components\DatePicker::make('data_disputa')
+                            ->label('Data de Abertura/Disputa'),
+                        Forms\Components\TimePicker::make('hora_disputa')
+                            ->label('Hora da Disputa'),
+                        
+                        Forms\Components\Textarea::make('objeto')
+                            ->label('Objeto')
+                            ->rows(3)
+                            ->required()
+                            ->columnSpanFull(),
+                    ])->columns(3),
 
-                Forms\Components\Section::make('ÓRGÃO COMPRADOR')
+                \Filament\Schemas\Components\Section::make('Órgão Comprador')
                     ->schema([
                         Forms\Components\TextInput::make('orgao_cnpj')
                             ->label('CNPJ')
                             ->mask('99.999.999/9999-99')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (?string $state, callable $set) {
+                                if (!$state) return;
+                                $cnpj = preg_replace('/[^0-9]/', '', $state);
+                                if (strlen($cnpj) !== 14) return;
+                                try {
+                                    $response = \Illuminate\Support\Facades\Http::get("https://brasilapi.com.br/api/cnpj/v1/{$cnpj}");
+                                    if ($response->successful()) {
+                                        $data = $response->json();
+                                        $set('orgao_razao_social', $data['razao_social'] ?? null);
+                                        $set('orgao_nome_fantasia', $data['nome_fantasia'] ?? null);
+                                        $endereco = trim(($data['logradouro'] ?? '') . ' ' . ($data['numero'] ?? '') . ' ' . ($data['complemento'] ?? ''));
+                                        $set('orgao_endereco', $endereco);
+                                        $set('orgao_bairro', $data['bairro'] ?? null);
+                                        $set('orgao_cidade', $data['municipio'] ?? null);
+                                        $set('orgao_estado', $data['uf'] ?? null);
+                                        if (isset($data['cep'])) {
+                                            $cep = preg_replace('/^(\d{5})(\d{3})$/', '$1-$2', $data['cep']);
+                                            $set('orgao_cep', $cep);
+                                        }
+                                    } else {
+                                        \Filament\Notifications\Notification::make()->title('CNPJ não encontrado')->danger()->send();
+                                    }
+                                } catch (\Exception $e) {
+                                    \Filament\Notifications\Notification::make()->title('Erro ao buscar CNPJ')->danger()->send();
+                                }
+                            }),
                         Forms\Components\TextInput::make('orgao_razao_social')
                             ->label('Razão Social')
                             ->maxLength(255),
@@ -96,38 +147,39 @@ class LicitacaoResource extends Resource
                             ->mask('99999-999')
                             ->maxLength(255),
                     ])->columns(2),
+            ]);
+    }
 
-                Forms\Components\Grid::make(1)
+    public static function infolist(Schema $schema): Schema
+    {
+        return $schema
+            ->schema([
+                \Filament\Schemas\Components\Section::make('Informações do Pregão')
                     ->schema([
-                        Forms\Components\Textarea::make('objeto')
-                            ->label('Objeto')
-                            ->rows(4)
-                            ->required(),
-                    ]),
-
-                Forms\Components\Grid::make(2)
-                    ->schema([
-                        Forms\Components\DatePicker::make('data_disputa')
-                            ->label('Data de Abertura/Disputa'),
-                        Forms\Components\TimePicker::make('hora_disputa')
+                        \Filament\Infolists\Components\TextEntry::make('numero_edital')
+                            ->label('Edital'),
+                        \Filament\Infolists\Components\TextEntry::make('numero_processo')
+                            ->label('Processo'),
+                        \Filament\Infolists\Components\TextEntry::make('modalidade')
+                            ->label('Modalidade'),
+                        \Filament\Infolists\Components\TextEntry::make('orgao_razao_social')
+                            ->label('Órgão Comprador'),
+                        \Filament\Infolists\Components\TextEntry::make('local_disputa')
+                            ->label('Local da Disputa'),
+                        \Filament\Infolists\Components\TextEntry::make('uasg')
+                            ->label('UASG'),
+                        \Filament\Infolists\Components\TextEntry::make('data_disputa')
+                            ->label('Data da Disputa')
+                            ->date('d/m/Y'),
+                        \Filament\Infolists\Components\TextEntry::make('hora_disputa')
                             ->label('Hora da Disputa'),
-                    ]),
-
-                Forms\Components\Select::make('status')
-                    ->label('Status')
-                    ->options([
-                        'Em análise' => 'Em análise',
-                        'Acolhimento de propostas' => 'Acolhimento de propostas',
-                        'Homologado' => 'Homologado',
-                        'Revogado' => 'Revogado',
-                        'Fracassado' => 'Fracassado',
-                        'Anulado' => 'Anulado',
-                        'Adjudicado' => 'Adjudicado',
-                        'Suspenso' => 'Suspenso',
-                    ])
-                    ->default('Em análise')
-                    ->required()
-                    ->columnSpanFull(),
+                        \Filament\Infolists\Components\TextEntry::make('status')
+                            ->label('Status')
+                            ->badge(),
+                        \Filament\Infolists\Components\TextEntry::make('objeto')
+                            ->label('Objeto')
+                            ->columnSpanFull(),
+                    ])->columns(3),
             ]);
     }
 
@@ -163,13 +215,22 @@ class LicitacaoResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()->label('Detalhes')->button()->color('primary'),
-                Tables\Actions\EditAction::make()->label('Editar')->button()->color('info'),
-                Tables\Actions\DeleteAction::make()->label('Excluir')->button()->color('danger'),
+                \Filament\Actions\Action::make('gerar_proposta')
+                    ->label('PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('success')
+                    ->action(function ($record) {
+                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('licitacoes::pdf.proposta', ['licitacao' => $record]);
+                        $filename = 'proposta-' . str_replace(['/', '\\'], '-', $record->numero_edital) . '.pdf';
+                        return response()->streamDownload(fn () => print($pdf->output()), $filename);
+                    }),
+                \Filament\Actions\ViewAction::make()->label('Detalhes')->button()->color('primary'),
+                \Filament\Actions\EditAction::make()->label('Editar')->button()->color('info'),
+                \Filament\Actions\DeleteAction::make()->label('Excluir')->button()->color('danger'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -177,7 +238,10 @@ class LicitacaoResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            LicitacaoResource\RelationManagers\ItensRelationManager::class,
+            LicitacaoResource\RelationManagers\AnexosRelationManager::class,
+            LicitacaoResource\RelationManagers\DocumentosRelationManager::class,
+            LicitacaoResource\RelationManagers\ObservacoesRelationManager::class,
         ];
     }
 

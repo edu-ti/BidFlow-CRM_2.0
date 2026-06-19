@@ -37,4 +37,19 @@ class Licitacao extends Model
     protected $casts = [
         'data_disputa' => 'date',
     ];
+
+    public function itens()
+    {
+        return $this->hasMany(LicitacaoItem::class, 'licitacao_id');
+    }
+
+    public function anexos()
+    {
+        return $this->hasMany(LicitacaoAnexo::class, 'licitacao_id');
+    }
+
+    public function observacoes()
+    {
+        return $this->hasMany(LicitacaoObservacao::class, 'licitacao_id');
+    }
 }

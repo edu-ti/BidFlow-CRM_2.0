@@ -7,6 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "barryvdh/laravel-dompdf": "^3.1",
         "filament/filament": "*",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
@@ -44,6 +45,9 @@
             "Modules\\Monitor\\": "Modules/Monitor/app/",
             "Modules\\Monitor\\Database\\Factories\\": "Modules/Monitor/database/factories/",
             "Modules\\Monitor\\Database\\Seeders\\": "Modules/Monitor/database/seeders/",
+            "Modules\\Comercial\\": "Modules/Comercial/app/",
+            "Modules\\Comercial\\Database\\Factories\\": "Modules/Comercial/database/factories/",
+            "Modules\\Comercial\\Database\\Seeders\\": "Modules/Comercial/database/seeders/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

@@ -4,5 +4,6 @@
     "Fornecedores": true,
     "Consignado": true,
     "Monitor": true,
-    "Analytics": true
+    "Analytics": true,
+    "Comercial": true
 }
