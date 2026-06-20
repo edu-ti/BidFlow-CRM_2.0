@@ -29,4 +29,9 @@ class TarefaAgenda extends Model
     {
         return $this->belongsTo(Oportunidade::class, 'oportunidade_id');
     }
+
+    public function historicos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Historico::class, 'tarefa_agenda_id');
+    }
 }

@@ -35,9 +35,14 @@ class ProdutoResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
-                        Forms\Components\TextInput::make('fabricante')
+                        Forms\Components\Select::make('fabricante')
                             ->label('Fabricante')
-                            ->maxLength(255),
+                            ->options(\Modules\Fornecedores\Models\Fornecedor::all()->mapWithKeys(function ($fornecedor) {
+                                $nome = !empty($fornecedor->nome_fantasia) ? $fornecedor->nome_fantasia : $fornecedor->razao_social;
+                                return [$nome => $nome];
+                            })->sort())
+                            ->searchable()
+                            ->preload(),
                         Forms\Components\TextInput::make('modelo')
                             ->label('Modelo')
                             ->maxLength(255),

@@ -20,8 +20,10 @@ class EventServiceProvider extends ServiceProvider
      */
     protected static $shouldDiscoverEvents = true;
 
-    /**
-     * Configure the proper event listeners for email verification.
-     */
-    protected function configureEmailVerification(): void {}
+    public function boot(): void
+    {
+        parent::boot();
+        
+        \Modules\Comercial\Models\PropostaComercial::observe(\Modules\Comercial\Observers\PropostaComercialObserver::class);
+    }
 }

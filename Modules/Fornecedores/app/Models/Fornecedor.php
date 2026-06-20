@@ -33,5 +33,6 @@ class Fornecedor extends Model
         'contato_telefone',
         'classificacao',
         'status',
+        'exibir_no_funil_fornecedores',
     ];
 }

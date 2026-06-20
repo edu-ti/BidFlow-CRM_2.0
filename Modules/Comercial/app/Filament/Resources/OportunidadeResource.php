@@ -24,6 +24,8 @@ class OportunidadeResource extends Resource
 
     protected static ?string $slug = 'oportunidades';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -43,15 +45,31 @@ class OportunidadeResource extends Resource
                         Forms\Components\Select::make('status')
                             ->label('Fase do Funil')
                             ->options([
-                                'Prospecção' => 'Prospecção',
-                                'Qualificação' => 'Qualificação',
+                                'Prospectando' => 'Prospectando',
                                 'Proposta' => 'Proposta',
                                 'Negociação' => 'Negociação',
-                                'Fechado/Ganho' => 'Fechado/Ganho',
-                                'Fechado/Perdido' => 'Fechado/Perdido',
+                                'Fechado/Aprovado' => 'Fechado/Aprovado',
+                                'Controle de Entrega' => 'Controle de Entrega',
+                                'Treinamentos' => 'Treinamentos',
+                                'Pós-venda' => 'Pós-venda',
+                                'Recusado' => 'Recusado',
                             ])
-                            ->default('Prospecção')
-                            ->required(),
+                            ->default('Prospectando')
+                            ->required()
+                            ->rules([
+                                fn (?\Illuminate\Database\Eloquent\Model $record) => function (string $attribute, $value, \Closure $fail) use ($record) {
+                                    if ($value === 'Negociação') {
+                                        if (!$record || $record->propostas()->count() === 0) {
+                                            $fail('A Oportunidade não pode avançar para Negociação sem uma proposta gerada e vinculada.');
+                                        }
+                                    }
+                                    if ($value === 'Fechado/Aprovado') {
+                                        if (!$record || $record->propostas()->where('status', 'Aprovada')->count() === 0) {
+                                            $fail('A Oportunidade não pode avançar para Fechado/Aprovado sem uma proposta com status "Aprovada".');
+                                        }
+                                    }
+                                },
+                            ]),
                         Forms\Components\TextInput::make('valor_estimado')
                             ->label('Valor Estimado (R$)')
                             ->numeric()
@@ -80,12 +98,14 @@ class OportunidadeResource extends Resource
                     ->label('Fase')
                     ->badge()
                     ->colors([
-                        'secondary' => 'Prospecção',
-                        'warning' => 'Qualificação',
+                        'secondary' => 'Prospectando',
                         'primary' => 'Proposta',
-                        'info' => 'Negociação',
-                        'success' => 'Fechado/Ganho',
-                        'danger' => 'Fechado/Perdido',
+                        'warning' => 'Negociação',
+                        'success' => 'Fechado/Aprovado',
+                        'info' => 'Controle de Entrega',
+                        'success' => 'Treinamentos',
+                        'success' => 'Pós-venda',
+                        'danger' => 'Recusado',
                     ]),
                 Tables\Columns\TextColumn::make('valor_estimado')
                     ->label('Valor Estimado')
@@ -99,12 +119,14 @@ class OportunidadeResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'Prospecção' => 'Prospecção',
-                        'Qualificação' => 'Qualificação',
+                        'Prospectando' => 'Prospectando',
                         'Proposta' => 'Proposta',
                         'Negociação' => 'Negociação',
-                        'Fechado/Ganho' => 'Fechado/Ganho',
-                        'Fechado/Perdido' => 'Fechado/Perdido',
+                        'Fechado/Aprovado' => 'Fechado/Aprovado',
+                        'Controle de Entrega' => 'Controle de Entrega',
+                        'Treinamentos' => 'Treinamentos',
+                        'Pós-venda' => 'Pós-venda',
+                        'Recusado' => 'Recusado',
                     ]),
             ])
             ->groups([
@@ -126,7 +148,7 @@ class OportunidadeResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            OportunidadeResource\RelationManagers\PropostasRelationManager::class,
         ];
     }
 

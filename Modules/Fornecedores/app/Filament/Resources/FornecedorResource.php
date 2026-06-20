@@ -102,6 +102,10 @@ class FornecedorResource extends Resource
                                 Forms\Components\Toggle::make('status')
                                     ->label('Ativo')
                                     ->default(true),
+
+                                Forms\Components\Toggle::make('exibir_no_funil_fornecedores')
+                                    ->label('Exibir no Funil de Fornecedores')
+                                    ->default(true),
                             ])->columns(2),
 
                         \Filament\Schemas\Components\Tabs\Tab::make('Contato da Empresa')

@@ -29,4 +29,9 @@ class PropostaComercial extends Model
     {
         return $this->hasMany(PropostaComercialItem::class, 'proposta_comercial_id');
     }
+
+    public function oportunidade(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Oportunidade::class, 'oportunidade_id');
+    }
 }

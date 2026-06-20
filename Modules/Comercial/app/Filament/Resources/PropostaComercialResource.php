@@ -41,6 +41,11 @@ class PropostaComercialResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload(),
+                        Forms\Components\Select::make('oportunidade_id')
+                            ->label('Oportunidade Vinculada')
+                            ->relationship('oportunidade', 'titulo')
+                            ->searchable()
+                            ->preload(),
                         Forms\Components\DatePicker::make('data_proposta')
                             ->label('Data da Proposta')
                             ->default(now()),

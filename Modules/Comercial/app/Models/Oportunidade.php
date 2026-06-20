@@ -24,4 +24,19 @@ class Oportunidade extends Model
     {
         return $this->belongsTo(\Modules\Fornecedores\Models\Fornecedor::class, 'fornecedor_id');
     }
+
+    public function propostas(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PropostaComercial::class, 'oportunidade_id');
+    }
+
+    public function tarefas(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TarefaAgenda::class, 'oportunidade_id');
+    }
+
+    public function historicos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Historico::class, 'oportunidade_id');
+    }
 }
