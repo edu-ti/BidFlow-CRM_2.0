@@ -20,18 +20,13 @@ class TarefaAgenda extends Model
         //return TarefaAgendaFactory::new();
     }
 
-    public function fornecedor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(\Modules\Fornecedores\Models\Fornecedor::class, 'fornecedor_id');
-    }
-
     public function oportunidade(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Oportunidade::class, 'oportunidade_id');
     }
 
-    public function historicos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function historicos(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
-        return $this->hasMany(Historico::class, 'tarefa_agenda_id');
+        return $this->morphMany(Historico::class, 'historicoable');
     }
 }

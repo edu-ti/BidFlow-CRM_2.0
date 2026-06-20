@@ -12,14 +12,9 @@ class Historico extends Model
 
     protected $guarded = [];
 
-    public function oportunidade(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function historicoable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
-        return $this->belongsTo(Oportunidade::class, 'oportunidade_id');
-    }
-
-    public function tarefa(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(TarefaAgenda::class, 'tarefa_agenda_id');
+        return $this->morphTo();
     }
 
     public function fornecedor(): \Illuminate\Database\Eloquent\Relations\BelongsTo

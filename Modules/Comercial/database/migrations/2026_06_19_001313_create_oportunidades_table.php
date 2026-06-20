@@ -16,8 +16,10 @@ return new class extends Migration
             $table->string('titulo');
             $table->foreignId('fornecedor_id')->nullable()->constrained('fornecedores')->nullOnDelete();
             $table->decimal('valor_estimado', 15, 2)->default(0);
-            $table->string('status')->default('Prospecção');
+            $table->string('status')->default('prospeccao');
             $table->date('data_fechamento_esperada')->nullable();
+            $table->date('data_fechamento_real')->nullable();
+            $table->string('motivo_perda')->nullable();
             $table->text('descricao')->nullable();
             $table->timestamps();
         });

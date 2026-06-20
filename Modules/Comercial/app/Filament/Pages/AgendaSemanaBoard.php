@@ -26,22 +26,7 @@ class AgendaSemanaBoard extends Page
                 ->label('Nova Tarefa')
                 ->model(TarefaAgenda::class)
                 ->form(fn (\Filament\Schemas\Schema $form) => \Modules\Comercial\Filament\Resources\TarefaAgendaResource::form($form)->getComponents())
-                ->mutateFormDataUsing(function (array $data) {
-                    $this->tempActionData = $data;
-                    unset($data['etapa_funil'], $data['acao_oportunidade']);
-                    return $data;
-                })
-                ->after(function (\Filament\Actions\CreateAction $action, $record) {
-                    $data = $this->tempActionData;
-                    if (!empty($data['etapa_funil'])) {
-                        $oportunidade = \Modules\Comercial\Models\Oportunidade::create([
-                            'titulo' => $record->titulo,
-                            'fornecedor_id' => $record->fornecedor_id,
-                            'status' => $data['etapa_funil'],
-                            'valor_estimado' => 0,
-                        ]);
-                        $record->update(['oportunidade_id' => $oportunidade->id]);
-                    }
+                ->after(function () {
                     $this->loadDays();
                 })
                 ->color('primary'),
@@ -54,42 +39,13 @@ class AgendaSemanaBoard extends Page
             ->model(TarefaAgenda::class)
             ->record(fn (array $arguments) => TarefaAgenda::find($arguments['record']))
             ->form(fn (\Filament\Schemas\Schema $form) => \Modules\Comercial\Filament\Resources\TarefaAgendaResource::form($form)->getComponents())
-            ->mutateFormDataUsing(function (array $data) {
-                $this->tempActionData = $data;
-                unset($data['etapa_funil'], $data['acao_oportunidade']);
-                return $data;
-            })
             ->extraModalFooterActions(fn (\Filament\Actions\EditAction $action): array => [
                 \Filament\Actions\DeleteAction::make('delete')
                     ->record($action->getRecord())
                     ->cancelParentActions()
                     ->after(fn () => $this->loadDays()),
             ])
-            ->after(function (\Filament\Actions\EditAction $action, $record) {
-                $data = $this->tempActionData;
-                if (!empty($data['etapa_funil'])) {
-                    if ($record->oportunidade_id) {
-                        if (isset($data['acao_oportunidade']) && $data['acao_oportunidade'] === 'criar') {
-                            $oportunidade = \Modules\Comercial\Models\Oportunidade::create([
-                                'titulo' => $record->titulo,
-                                'fornecedor_id' => $record->fornecedor_id,
-                                'status' => $data['etapa_funil'],
-                                'valor_estimado' => 0,
-                            ]);
-                            $record->update(['oportunidade_id' => $oportunidade->id]);
-                        } else {
-                            $record->oportunidade->update(['status' => $data['etapa_funil']]);
-                        }
-                    } else {
-                        $oportunidade = \Modules\Comercial\Models\Oportunidade::create([
-                            'titulo' => $record->titulo,
-                            'fornecedor_id' => $record->fornecedor_id,
-                            'status' => $data['etapa_funil'],
-                            'valor_estimado' => 0,
-                        ]);
-                        $record->update(['oportunidade_id' => $oportunidade->id]);
-                    }
-                }
+            ->after(function () {
                 $this->loadDays();
             });
     }

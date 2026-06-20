@@ -35,8 +35,8 @@ class Oportunidade extends Model
         return $this->hasMany(TarefaAgenda::class, 'oportunidade_id');
     }
 
-    public function historicos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function historicos(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
-        return $this->hasMany(Historico::class, 'oportunidade_id');
+        return $this->morphMany(Historico::class, 'historicoable');
     }
 }

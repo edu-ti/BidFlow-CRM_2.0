@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('historicos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('oportunidade_id')->nullable()->constrained('oportunidades')->cascadeOnDelete();
-            $table->foreignId('tarefa_agenda_id')->nullable()->constrained('tarefa_agendas')->cascadeOnDelete();
+            $table->morphs('historicoable');
             $table->foreignId('fornecedor_id')->nullable()->constrained('fornecedores')->cascadeOnDelete();
             $table->text('nota');
             $table->timestamps();

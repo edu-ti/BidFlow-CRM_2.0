@@ -19,7 +19,6 @@ return new class extends Migration
             $table->dateTime('data_fim')->nullable();
             $table->boolean('dia_inteiro')->default(false);
             $table->string('status')->default('Pendente');
-            $table->foreignId('fornecedor_id')->nullable()->constrained('fornecedores')->nullOnDelete();
             $table->foreignId('oportunidade_id')->nullable()->constrained('oportunidades')->nullOnDelete();
             $table->timestamps();
         });

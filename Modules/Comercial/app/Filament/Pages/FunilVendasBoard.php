@@ -54,6 +54,29 @@ class FunilVendasBoard extends Page
             ->after(fn() => $this->loadOportunidades());
     }
 
+    public function recusarOportunidadeAction(): \Filament\Actions\Action
+    {
+        return \Filament\Actions\Action::make('recusarOportunidade')
+            ->modalHeading('Motivo da Perda')
+            ->form([
+                \Filament\Forms\Components\TextInput::make('motivo_perda')
+                    ->label('Motivo')
+                    ->required(),
+            ])
+            ->action(function (array $data, array $arguments) {
+                $oportunidade = Oportunidade::find($arguments['id']);
+                if ($oportunidade) {
+                    $oportunidade->update([
+                        'status' => 'Recusado',
+                        'motivo_perda' => $data['motivo_perda'],
+                        'data_fechamento_real' => now(),
+                    ]);
+                    $this->loadOportunidades();
+                    Notification::make()->title('Sucesso')->body('Oportunidade movida para Recusado')->success()->send();
+                }
+            });
+    }
+
     public function mount()
     {
         $this->loadOportunidades();
@@ -69,17 +92,29 @@ class FunilVendasBoard extends Page
         $oportunidade = Oportunidade::find($id);
         
         if ($oportunidade && $oportunidade->status !== $newStage) {
+            if ($newStage === 'Recusado') {
+                $this->mountAction('recusarOportunidade', ['id' => $id]);
+                return;
+            }
+
             if ($newStage === 'Negociação' && $oportunidade->propostas()->count() === 0) {
                 Notification::make()->title('Atenção')->body('Crie uma proposta antes de avançar para Negociação.')->danger()->send();
                 return;
             }
 
-            if ($newStage === 'Fechado/Aprovado' && $oportunidade->propostas()->where('status', 'Aprovada')->count() === 0) {
-                Notification::make()->title('Atenção')->body('Aprove uma proposta antes de dar como Fechado/Aprovado.')->danger()->send();
-                return;
+            if ($newStage === 'Fechado/Aprovado') {
+                if ($oportunidade->propostas()->where('status', 'Aprovada')->count() === 0) {
+                    Notification::make()->title('Atenção')->body('Aprove uma proposta antes de dar como Fechado/Aprovado.')->danger()->send();
+                    return;
+                }
+                $oportunidade->update([
+                    'status' => $newStage,
+                    'data_fechamento_real' => now(),
+                ]);
+            } else {
+                $oportunidade->update(['status' => $newStage]);
             }
-
-            $oportunidade->update(['status' => $newStage]);
+            
             $this->loadOportunidades();
             Notification::make()->title('Sucesso')->body('Oportunidade movida para ' . $newStage)->success()->send();
         }
