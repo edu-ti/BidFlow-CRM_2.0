@@ -9,15 +9,13 @@ class TarefaHistorico extends Component
 {
     public $tarefa_agenda_id;
     public $oportunidade_id;
-    public $fornecedor_id;
 
     public $nova_nota = '';
 
-    public function mount($tarefa_agenda_id, $oportunidade_id = null, $fornecedor_id = null)
+    public function mount($tarefa_agenda_id, $oportunidade_id = null)
     {
         $this->tarefa_agenda_id = $tarefa_agenda_id;
         $this->oportunidade_id = $oportunidade_id;
-        $this->fornecedor_id = $fornecedor_id;
     }
 
     public function salvarNota()
@@ -27,9 +25,8 @@ class TarefaHistorico extends Component
         ]);
 
         Historico::create([
-            'tarefa_agenda_id' => $this->tarefa_agenda_id,
-            'oportunidade_id' => $this->oportunidade_id,
-            'fornecedor_id' => $this->fornecedor_id,
+            'historicoable_type' => \Modules\Comercial\Models\TarefaAgenda::class,
+            'historicoable_id' => $this->tarefa_agenda_id,
             'nota' => $this->nova_nota,
         ]);
 
@@ -41,12 +38,19 @@ class TarefaHistorico extends Component
     {
         $query = Historico::query();
 
-        if ($this->oportunidade_id) {
-            $query->where('oportunidade_id', $this->oportunidade_id)
-                  ->orWhere('tarefa_agenda_id', $this->tarefa_agenda_id);
-        } else {
-            $query->where('tarefa_agenda_id', $this->tarefa_agenda_id);
-        }
+        $query->where(function ($q) {
+            $q->where(function ($subQ) {
+                $subQ->where('historicoable_type', \Modules\Comercial\Models\TarefaAgenda::class)
+                     ->where('historicoable_id', $this->tarefa_agenda_id);
+            });
+            
+            if ($this->oportunidade_id) {
+                $q->orWhere(function ($subQ) {
+                    $subQ->where('historicoable_type', \Modules\Comercial\Models\Oportunidade::class)
+                         ->where('historicoable_id', $this->oportunidade_id);
+                });
+            }
+        });
 
         return $query->orderBy('created_at', 'desc')->get();
     }

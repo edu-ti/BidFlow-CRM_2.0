@@ -55,11 +55,7 @@ class TarefaAgendaResource extends Resource
                             ])
                             ->default('Pendente')
                             ->required(),
-                        Forms\Components\Select::make('fornecedor_id')
-                            ->label('Cliente Relacionado')
-                            ->relationship('fornecedor', 'razao_social')
-                            ->searchable()
-                            ->preload(),
+
                         Forms\Components\Select::make('oportunidade_id')
                             ->label('Oportunidade / Negócio')
                             ->relationship('oportunidade', 'titulo')
@@ -98,7 +94,7 @@ class TarefaAgendaResource extends Resource
                         'success' => 'Concluída',
                         'danger' => 'Cancelada',
                     ]),
-                Tables\Columns\TextColumn::make('fornecedor.razao_social')
+                Tables\Columns\TextColumn::make('oportunidade.fornecedor.razao_social')
                     ->label('Cliente')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('oportunidade.titulo')

@@ -30,56 +30,137 @@ class OportunidadeResource extends Resource
     {
         return $schema
             ->schema([
-                \Filament\Schemas\Components\Section::make('Detalhes da Oportunidade')
+                \Filament\Schemas\Components\Section::make('Informações Principais')
                     ->schema([
+                        \Filament\Schemas\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('pessoa_contato_nome')->label('Pessoa de contato'),
+                                Forms\Components\Select::make('fornecedor_id')
+                                    ->label('Organização')
+                                    ->relationship('fornecedor', 'razao_social')
+                                    ->searchable()
+                                    ->preload(),
+                                Forms\Components\TextInput::make('pessoa_contato_telefone')->label('Telefone'),
+                                Forms\Components\TextInput::make('pessoa_contato_email')->label('E-mail')->email(),
+                            ]),
+                        
                         Forms\Components\TextInput::make('titulo')
-                            ->label('Título / Nome da Oportunidade')
+                            ->label('Título')
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
-                        Forms\Components\Select::make('fornecedor_id')
-                            ->label('Cliente')
-                            ->relationship('fornecedor', 'razao_social')
-                            ->searchable()
-                            ->preload(),
-                        Forms\Components\Select::make('status')
-                            ->label('Fase do Funil')
-                            ->options([
-                                'Prospectando' => 'Prospectando',
-                                'Proposta' => 'Proposta',
-                                'Negociação' => 'Negociação',
-                                'Fechado/Aprovado' => 'Fechado/Aprovado',
-                                'Controle de Entrega' => 'Controle de Entrega',
-                                'Treinamentos' => 'Treinamentos',
-                                'Pós-venda' => 'Pós-venda',
-                                'Recusado' => 'Recusado',
-                            ])
-                            ->default('Prospectando')
-                            ->required()
-                            ->rules([
-                                fn (?\Illuminate\Database\Eloquent\Model $record) => function (string $attribute, $value, \Closure $fail) use ($record) {
-                                    if ($value === 'Negociação') {
-                                        if (!$record || $record->propostas()->count() === 0) {
-                                            $fail('A Oportunidade não pode avançar para Negociação sem uma proposta gerada e vinculada.');
+                        
+                        \Filament\Schemas\Components\Grid::make(1)
+                            ->schema([
+                                Forms\Components\Repeater::make('oportunidadeProdutos')
+                                    ->relationship('oportunidadeProdutos')
+                                    ->label('Adicionar Produtos')
+                                    ->addActionLabel('Adicionar Produto')
+                                    ->live()
+                                    ->schema([
+                                        Forms\Components\Select::make('produto_id')
+                                            ->label('Produto')
+                                            ->relationship('produto', 'nome')
+                                            ->required()
+                                            ->searchable()
+                                            ->preload()
+                                            ->live()
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    $produto = \Modules\Comercial\Models\Produto::find($state);
+                                                    if ($produto) {
+                                                        $set('preco_unitario', $produto->valor_unitario);
+                                                    }
+                                                }
+                                            })
+                                            ->columnSpan(2),
+                                        Forms\Components\TextInput::make('quantidade')
+                                            ->label('Qtd')
+                                            ->numeric()
+                                            ->default(1)
+                                            ->required()
+                                            ->live()
+                                            ->columnSpan(1),
+                                        Forms\Components\TextInput::make('preco_unitario')
+                                            ->label('Preço Unit.')
+                                            ->numeric()
+                                            ->required()
+                                            ->live()
+                                            ->columnSpan(1),
+                                    ])
+                                    ->columns(4),
+
+                                Forms\Components\Placeholder::make('total_calculado')
+                                    ->label('Valor Total')
+                                    ->content(function ($get) {
+                                        $produtos = $get('oportunidadeProdutos') ?? [];
+                                        $total = 0;
+                                        foreach ($produtos as $produto) {
+                                            $qtd = (float) ($produto['quantidade'] ?? 0);
+                                            $preco = (float) ($produto['preco_unitario'] ?? 0);
+                                            $total += $qtd * $preco;
                                         }
-                                    }
-                                    if ($value === 'Fechado/Aprovado') {
-                                        if (!$record || $record->propostas()->where('status', 'Aprovada')->count() === 0) {
-                                            $fail('A Oportunidade não pode avançar para Fechado/Aprovado sem uma proposta com status "Aprovada".');
-                                        }
-                                    }
-                                },
+                                        return 'R$ ' . number_format($total, 2, ',', '.');
+                                    }),
                             ]),
-                        Forms\Components\TextInput::make('valor_estimado')
-                            ->label('Valor Estimado (R$)')
-                            ->numeric()
-                            ->default(0),
-                        Forms\Components\DatePicker::make('data_fechamento_esperada')
-                            ->label('Fechamento Esperado'),
-                        Forms\Components\Textarea::make('descricao')
-                            ->label('Descrição')
-                            ->rows(3)
+                    ]),
+
+                \Filament\Schemas\Components\Section::make('Pipeline e Detalhes')
+                    ->schema([
+                        \Filament\Schemas\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\Select::make('funil_selecionado')
+                                    ->label('Funil')
+                                    ->options([
+                                        'Funil de vendas' => 'Funil de vendas',
+                                        'Funil de onboarding' => 'Funil de onboarding',
+                                    ])
+                                    ->default('Funil de vendas')
+                                    ->required(),
+                                Forms\Components\Select::make('status')
+                                    ->label('Pipeline stage')
+                                    ->options([
+                                        'Prospectando' => 'Prospectando',
+                                        'Proposta' => 'Proposta',
+                                        'Negociação' => 'Negociação',
+                                        'Fechado / Aprovado' => 'Fechado / Aprovado',
+                                        'Perdido / Recusado' => 'Perdido / Recusado',
+                                    ])
+                                    ->default('Prospectando')
+                                    ->required()
+                                    ->live(),
+                            ]),
+                        \Filament\Schemas\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\DatePicker::make('data_fechamento_esperada')
+                                    ->label('Data de fechamento esperada'),
+                                Forms\Components\Select::make('user_id')
+                                    ->label('Proprietário')
+                                    ->relationship('user', 'name')
+                                    ->default(auth()->id()),
+                            ]),
+                        Forms\Components\Select::make('visibilidade')
+                            ->label('Visível para')
+                            ->options([
+                                'Proprietário do item' => 'Proprietário do item',
+                                'Grupo de visibilidade' => 'Grupo de visibilidade',
+                                'Todos os usuários' => 'Todos os usuários',
+                            ])
+                            ->default('Todos os usuários')
                             ->columnSpanFull(),
+                    ]),
+
+                \Filament\Schemas\Components\Section::make('Agendamento de Tarefa')
+                    ->schema([
+                        Forms\Components\Toggle::make('criar_tarefa')
+                            ->label('Agendar uma Tarefa para esta Oportunidade?')
+                            ->live()
+                            ->default(false),
+                        Forms\Components\DateTimePicker::make('data_tarefa')
+                            ->label('Data e Hora')
+                            ->visible(fn ($get) => $get('criar_tarefa'))
+                            ->required(fn ($get) => $get('criar_tarefa'))
+                            ->default(now()->addDay()->setHour(9)->setMinute(0)),
                     ])->columns(2),
             ]);
     }
@@ -101,11 +182,8 @@ class OportunidadeResource extends Resource
                         'secondary' => 'Prospectando',
                         'primary' => 'Proposta',
                         'warning' => 'Negociação',
-                        'success' => 'Fechado/Aprovado',
-                        'info' => 'Controle de Entrega',
-                        'success' => 'Treinamentos',
-                        'success' => 'Pós-venda',
-                        'danger' => 'Recusado',
+                        'success' => 'Fechado / Aprovado',
+                        'danger' => 'Perdido / Recusado',
                     ]),
                 Tables\Columns\TextColumn::make('valor_estimado')
                     ->label('Valor Estimado')
@@ -122,11 +200,8 @@ class OportunidadeResource extends Resource
                         'Prospectando' => 'Prospectando',
                         'Proposta' => 'Proposta',
                         'Negociação' => 'Negociação',
-                        'Fechado/Aprovado' => 'Fechado/Aprovado',
-                        'Controle de Entrega' => 'Controle de Entrega',
-                        'Treinamentos' => 'Treinamentos',
-                        'Pós-venda' => 'Pós-venda',
-                        'Recusado' => 'Recusado',
+                        'Fechado / Aprovado' => 'Fechado / Aprovado',
+                        'Perdido / Recusado' => 'Perdido / Recusado',
                     ]),
             ])
             ->groups([
@@ -135,8 +210,9 @@ class OportunidadeResource extends Resource
                     ->collapsible(),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make()->label('Editar')->button()->color('info'),
-                \Filament\Actions\DeleteAction::make()->label('Excluir')->button()->color('danger'),
+                \Filament\Tables\Actions\ViewAction::make()->label('Abrir')->button()->color('gray'),
+                \Filament\Tables\Actions\EditAction::make()->label('Editar')->button()->color('info'),
+                \Filament\Tables\Actions\DeleteAction::make()->label('Excluir')->button()->color('danger'),
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
@@ -158,6 +234,7 @@ class OportunidadeResource extends Resource
             'index' => Pages\ListOportunidades::route('/'),
             'create' => Pages\CreateOportunidade::route('/create'),
             'edit' => Pages\EditOportunidade::route('/{record}/edit'),
+            'view' => Pages\ViewOportunidade::route('/{record}'),
         ];
     }
 }

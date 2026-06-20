@@ -21,7 +21,7 @@
          x-data="{
              draggedId: null,
              updateStatus(id, newStatus) {
-                 $wire.updateOportunidadeStatus(id, newStatus);
+                 $wire.updateOnboardingStatus(id, newStatus);
              }
          }">
         
@@ -33,47 +33,34 @@
                 <div class="flex justify-between items-center mb-4 px-1">
                     <h3 class="font-bold text-gray-900 dark:text-white uppercase text-sm tracking-wider">{{ $stage }}</h3>
                     <span class="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold px-2 py-1 rounded-full">
-                        {{ collect($oportunidades)->where('status', $stage)->count() }}
+                        {{ collect($onboardings)->where('status', $stage)->count() }}
                     </span>
-                </div>
-                
-                <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-4 px-1">
-                    R$ {{ number_format(collect($oportunidades)->where('status', $stage)->sum('valor_estimado'), 2, ',', '.') }}
                 </div>
 
                 <div class="flex flex-col gap-3 min-h-[150px]">
-                    @foreach(collect($oportunidades)->where('status', $stage) as $op)
+                    @foreach(collect($onboardings)->where('status', $stage) as $op)
                         @php
                             $fornecedor = !empty($op['fornecedor_id']) ? \Modules\Fornecedores\Models\Fornecedor::find($op['fornecedor_id']) : null;
                             $days = (int) \Carbon\Carbon::parse($op['created_at'])->timezone('America/Sao_Paulo')->startOfDay()->diffInDays(now()->timezone('America/Sao_Paulo')->startOfDay());
-                            $counterColor = $days > 15 ? 'text-red-600 dark:text-red-400' : ($days > 7 ? 'text-warning-600 dark:text-warning-400' : 'text-gray-700 dark:text-gray-300');
+                            $counterColor = $days > 30 ? 'text-red-600 dark:text-red-400' : ($days > 15 ? 'text-warning-600 dark:text-warning-400' : 'text-gray-700 dark:text-gray-300');
                         @endphp
-                        <div class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm border-l-4 border-primary-500 cursor-grab hover:shadow-md transition-all flex flex-col gap-1.5"
+                        <div class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm border-l-4 border-indigo-500 cursor-grab hover:shadow-md transition-all flex flex-col gap-1.5"
                              draggable="true"
                              @dragstart="draggedId = {{ $op['id'] }}; $event.dataTransfer.effectAllowed = 'move';"
                         >
-                            <div class="flex items-center justify-between">
-                                <a href="{{ \Modules\Comercial\Filament\Resources\OportunidadeResource::getUrl('view', ['record' => $op['id']]) }}" class="font-bold text-left text-gray-800 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400 truncate w-full text-sm block cursor-pointer">
-                                    {{ $op['titulo'] }}
-                                </a>
-                                <button type="button" wire:click="mountAction('editOportunidade', { record: {{ $op['id'] }} })" class="text-gray-400 hover:text-primary-600 ml-2" title="Edição Rápida">
-                                    <x-heroicon-s-pencil class="w-3.5 h-3.5"/>
-                                </button>
-                            </div>
+                            <button type="button" wire:click="mountAction('editOnboarding', { record: {{ $op['id'] }} })" class="font-bold text-left text-gray-800 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 truncate w-full text-sm">
+                                {{ $op['titulo'] }}
+                            </button>
                             
                             @if($fornecedor)
                                 <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide truncate">
                                     {{ $fornecedor->razao_social }}
                                 </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                    <x-heroicon-s-user class="w-3.5 h-3.5 text-gray-400"/>
-                                    <span class="truncate">{{ $fornecedor->contato_nome ?: 'Sem contato' }}</span>
-                                </div>
                             @endif
                             
                             <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                 <x-heroicon-s-calendar class="w-3.5 h-3.5 text-gray-400"/>
-                                {{ \Carbon\Carbon::parse($op['created_at'])->timezone('America/Sao_Paulo')->format('d/m/Y') }}
+                                Venda: {{ \Carbon\Carbon::parse($op['data_venda'])->timezone('America/Sao_Paulo')->format('d/m/Y') }}
                             </div>
 
                             <div class="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1 mt-0.5">
@@ -81,16 +68,9 @@
                                 Atualizado em {{ \Carbon\Carbon::parse($op['updated_at'])->timezone('America/Sao_Paulo')->format('d/m/Y H:i') }}
                             </div>
 
-                            @if(!empty($op['motivo_perda']) && $op['status'] === 'Recusado')
-                                <div class="text-[10px] text-red-600 dark:text-red-400 mt-1 font-semibold flex items-start gap-1 p-1.5 bg-red-50 dark:bg-red-950/30 rounded border border-red-100 dark:border-red-900/50">
-                                    <x-heroicon-m-x-circle class="w-3.5 h-3.5 shrink-0"/>
-                                    <span class="leading-tight break-words line-clamp-2" title="{{ $op['motivo_perda'] }}">Motivo: {{ $op['motivo_perda'] }}</span>
-                                </div>
-                            @endif
-
                             <div class="flex justify-between items-end mt-2 pt-2 border-t border-gray-50 dark:border-gray-700/50">
-                                <div class="font-bold text-primary-600 dark:text-primary-400 text-sm">
-                                    R$ {{ number_format($op['valor_estimado'], 2, ',', '.') }}
+                                <div class="font-bold text-indigo-600 dark:text-indigo-400 text-sm">
+                                    R$ {{ number_format($op['valor_fechado'], 2, ',', '.') }}
                                 </div>
                                 <div class="flex flex-col items-end gap-0.5">
                                     <div class="text-xs font-bold flex items-center gap-1 {{ $counterColor }}">
@@ -98,13 +78,13 @@
                                         {{ $days }} {{ $days == 1 ? 'dia' : 'dias' }}
                                     </div>
                                     <div class="text-[10px] text-gray-400 dark:text-gray-500 truncate max-w-[100px]">
-                                        {{ auth()->user()->name ?? 'Usuário' }}
+                                        Em CS
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @endforeach
-                    @if(collect($oportunidades)->where('status', $stage)->isEmpty())
+                    @if(collect($onboardings)->where('status', $stage)->isEmpty())
                         <div class="flex-1 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center p-6 text-gray-400 dark:text-gray-500 text-sm">
                             Solte aqui
                         </div>

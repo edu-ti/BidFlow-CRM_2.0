@@ -62,7 +62,7 @@ class AgendaSemanaBoard extends Page
         for ($i = 0; $i < 7; $i++) {
             $date = $this->weekStart->copy()->addDays($i);
             
-            $tarefas = TarefaAgenda::with(['fornecedor', 'oportunidade'])
+            $tarefas = TarefaAgenda::with(['oportunidade', 'oportunidade.fornecedor'])
                 ->whereDate('data_inicio', $date->format('Y-m-d'))
                 ->get();
 

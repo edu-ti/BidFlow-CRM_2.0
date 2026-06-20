@@ -18,11 +18,8 @@ class FunilVendasBoard extends Page
         'Prospectando',
         'Proposta',
         'Negociação',
-        'Fechado/Aprovado',
-        'Controle de Entrega',
-        'Treinamentos',
-        'Pós-venda',
-        'Recusado'
+        'Fechado / Aprovado',
+        'Perdido / Recusado'
     ];
 
     public $oportunidades = [];
@@ -34,6 +31,48 @@ class FunilVendasBoard extends Page
                 ->label('Nova Oportunidade')
                 ->model(Oportunidade::class)
                 ->form(fn (\Filament\Schemas\Schema $form) => \Modules\Comercial\Filament\Resources\OportunidadeResource::form($form)->getComponents())
+                ->using(function (array $data, string $model): \Illuminate\Database\Eloquent\Model {
+                    $criarTarefa = $data['criar_tarefa'] ?? false;
+                    $dataTarefa = $data['data_tarefa'] ?? null;
+                    unset($data['criar_tarefa'], $data['data_tarefa']);
+
+                    $record = $model::create($data);
+
+                    if (isset($data['funil_selecionado']) && $data['funil_selecionado'] === 'Funil de onboarding') {
+                        $record->update(['status' => 'Fechado / Aprovado', 'data_fechamento_real' => now()]);
+                        if (!$record->onboarding) {
+                            \Modules\Comercial\Models\Onboarding::create([
+                                'oportunidade_id' => $record->id,
+                                'fornecedor_id' => $record->fornecedor_id,
+                                'titulo' => $record->titulo,
+                                'status' => 'Transição de Vendas',
+                                'valor_fechado' => $record->valor_estimado,
+                                'data_venda' => now(),
+                                'resumo_venda' => $record->descricao ?? '',
+                            ]);
+                        }
+                    }
+
+                    if ($criarTarefa && $dataTarefa) {
+                        \Modules\Comercial\Models\TarefaAgenda::create([
+                            'titulo' => 'Primeiro Contato - ' . $record->titulo,
+                            'data_inicio' => $dataTarefa,
+                            'status' => 'Pendente',
+                            'oportunidade_id' => $record->id,
+                        ]);
+                    }
+
+                    return $record;
+                })
+                ->after(function (\Illuminate\Database\Eloquent\Model $record) {
+                    $totalProdutos = $record->oportunidadeProdutos()->sum(\Illuminate\Support\Facades\DB::raw('quantidade * preco_unitario'));
+                    if ($totalProdutos > 0) {
+                        $record->update(['valor_estimado' => $totalProdutos]);
+                        if ($record->onboarding) {
+                            $record->onboarding->update(['valor_fechado' => $totalProdutos]);
+                        }
+                    }
+                })
                 ->after(fn() => $this->loadOportunidades())
                 ->color('primary'),
         ];
@@ -45,13 +84,40 @@ class FunilVendasBoard extends Page
             ->model(Oportunidade::class)
             ->record(fn (array $arguments) => Oportunidade::find($arguments['record']))
             ->form(fn (\Filament\Schemas\Schema $form) => \Modules\Comercial\Filament\Resources\OportunidadeResource::form($form)->getComponents())
+            ->using(function (\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model {
+                $criarTarefa = $data['criar_tarefa'] ?? false;
+                $dataTarefa = $data['data_tarefa'] ?? null;
+                unset($data['criar_tarefa'], $data['data_tarefa']);
+
+                $record->update($data);
+
+                if ($criarTarefa && $dataTarefa) {
+                    \Modules\Comercial\Models\TarefaAgenda::create([
+                        'titulo' => 'Acompanhamento - ' . $record->titulo,
+                        'data_inicio' => $dataTarefa,
+                        'status' => 'Pendente',
+                        'oportunidade_id' => $record->id,
+                    ]);
+                }
+
+                return $record;
+            })
             ->extraModalFooterActions(fn (\Filament\Actions\EditAction $action): array => [
                 \Filament\Actions\DeleteAction::make('delete')
                     ->record($action->getRecord())
                     ->cancelParentActions()
                     ->after(fn () => $this->loadOportunidades()),
             ])
-            ->after(fn() => $this->loadOportunidades());
+            ->after(function (\Illuminate\Database\Eloquent\Model $record) {
+                $totalProdutos = $record->oportunidadeProdutos()->sum(\Illuminate\Support\Facades\DB::raw('quantidade * preco_unitario'));
+                if ($totalProdutos > 0) {
+                    $record->update(['valor_estimado' => $totalProdutos]);
+                    if ($record->onboarding) {
+                        $record->onboarding->update(['valor_fechado' => $totalProdutos]);
+                    }
+                }
+                $this->loadOportunidades();
+            });
     }
 
     public function recusarOportunidadeAction(): \Filament\Actions\Action
@@ -67,12 +133,12 @@ class FunilVendasBoard extends Page
                 $oportunidade = Oportunidade::find($arguments['id']);
                 if ($oportunidade) {
                     $oportunidade->update([
-                        'status' => 'Recusado',
+                        'status' => 'Perdido / Recusado',
                         'motivo_perda' => $data['motivo_perda'],
                         'data_fechamento_real' => now(),
                     ]);
                     $this->loadOportunidades();
-                    Notification::make()->title('Sucesso')->body('Oportunidade movida para Recusado')->success()->send();
+                    Notification::make()->title('Sucesso')->body('Oportunidade movida para Perdido / Recusado')->success()->send();
                 }
             });
     }
@@ -92,7 +158,7 @@ class FunilVendasBoard extends Page
         $oportunidade = Oportunidade::find($id);
         
         if ($oportunidade && $oportunidade->status !== $newStage) {
-            if ($newStage === 'Recusado') {
+            if ($newStage === 'Perdido / Recusado') {
                 $this->mountAction('recusarOportunidade', ['id' => $id]);
                 return;
             }
@@ -102,15 +168,27 @@ class FunilVendasBoard extends Page
                 return;
             }
 
-            if ($newStage === 'Fechado/Aprovado') {
+            if ($newStage === 'Fechado / Aprovado') {
                 if ($oportunidade->propostas()->where('status', 'Aprovada')->count() === 0) {
-                    Notification::make()->title('Atenção')->body('Aprove uma proposta antes de dar como Fechado/Aprovado.')->danger()->send();
+                    Notification::make()->title('Atenção')->body('Aprove uma proposta antes de dar como Fechado / Aprovado.')->danger()->send();
                     return;
                 }
                 $oportunidade->update([
                     'status' => $newStage,
                     'data_fechamento_real' => now(),
                 ]);
+
+                if (!$oportunidade->onboarding) {
+                    \Modules\Comercial\Models\Onboarding::create([
+                        'oportunidade_id' => $oportunidade->id,
+                        'fornecedor_id' => $oportunidade->fornecedor_id,
+                        'titulo' => $oportunidade->titulo,
+                        'status' => 'Transição de Vendas',
+                        'valor_fechado' => $oportunidade->valor_estimado,
+                        'data_venda' => now(),
+                        'resumo_venda' => $oportunidade->descricao,
+                    ]);
+                }
             } else {
                 $oportunidade->update(['status' => $newStage]);
             }

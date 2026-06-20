@@ -15,6 +15,29 @@ class Oportunidade extends Model
      */
     protected $guarded = [];
 
+    protected $casts = [
+        'etiquetas' => 'array',
+        'data_fechamento_esperada' => 'datetime',
+        'data_fechamento_real' => 'datetime',
+    ];
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
+
+    public function produtos(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Produto::class, 'oportunidade_produto')
+            ->withPivot('quantidade', 'preco_unitario')
+            ->withTimestamps();
+    }
+
+    public function oportunidadeProdutos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(OportunidadeProduto::class, 'oportunidade_id');
+    }
+
     protected static function newFactory()
     {
         //return OportunidadeFactory::new();
@@ -33,6 +56,11 @@ class Oportunidade extends Model
     public function tarefas(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(TarefaAgenda::class, 'oportunidade_id');
+    }
+
+    public function onboarding(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Onboarding::class, 'oportunidade_id');
     }
 
     public function historicos(): \Illuminate\Database\Eloquent\Relations\MorphMany
