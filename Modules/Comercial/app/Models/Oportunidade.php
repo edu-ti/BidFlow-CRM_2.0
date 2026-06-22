@@ -15,6 +15,17 @@ class Oportunidade extends Model
      */
     protected $guarded = [];
 
+    protected static function booted()
+    {
+        static::created(function ($oportunidade) {
+            $oportunidade->historicos()->create([
+                'tipo' => 'sistema',
+                'nota' => 'Oportunidade criada.',
+                'user_id' => auth()->id() ?? $oportunidade->user_id,
+            ]);
+        });
+    }
+
     protected $casts = [
         'etiquetas' => 'array',
         'data_fechamento_esperada' => 'datetime',

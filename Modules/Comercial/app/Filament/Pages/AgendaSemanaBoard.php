@@ -5,13 +5,22 @@ namespace Modules\Comercial\Filament\Pages;
 use Filament\Pages\Page;
 use Modules\Comercial\Models\TarefaAgenda;
 use Illuminate\Support\Carbon;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Illuminate\Database\Eloquent\Builder;
 
-class AgendaSemanaBoard extends Page
+class AgendaSemanaBoard extends Page implements HasTable
 {
+    use InteractsWithTable;
+
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-calendar';
     protected static \UnitEnum|string|null $navigationGroup = 'Comercial';
     protected string $view = 'comercial::filament.pages.agenda-semana-board';
-    protected static ?string $title = 'Agenda da Semana';
+    protected static ?string $title = 'Atividades';
     protected static ?int $navigationSort = 1;
 
     public $weekStart;
@@ -19,40 +28,38 @@ class AgendaSemanaBoard extends Page
     public $days = [];
     public $tempActionData = [];
 
+    // Controles de Visualização Pipedrive
+    public $viewMode = 'calendar'; // 'calendar' ou 'list'
+    public $activityFilter = 'Tudo';
+
     protected function getHeaderActions(): array
     {
         return [
             \Filament\Actions\CreateAction::make('create')
-                ->label('Nova Tarefa')
+                ->label('+ Atividade')
                 ->model(TarefaAgenda::class)
                 ->form(fn (\Filament\Schemas\Schema $form) => \Modules\Comercial\Filament\Resources\TarefaAgendaResource::form($form)->getComponents())
                 ->after(function () {
                     $this->loadDays();
                 })
-                ->color('primary'),
+                ->color('success'),
         ];
-    }
-
-    public function editTarefaAction(): \Filament\Actions\Action
-    {
-        return \Filament\Actions\EditAction::make('editTarefa')
-            ->model(TarefaAgenda::class)
-            ->record(fn (array $arguments) => TarefaAgenda::find($arguments['record']))
-            ->form(fn (\Filament\Schemas\Schema $form) => \Modules\Comercial\Filament\Resources\TarefaAgendaResource::form($form)->getComponents())
-            ->extraModalFooterActions(fn (\Filament\Actions\EditAction $action): array => [
-                \Filament\Actions\DeleteAction::make('delete')
-                    ->record($action->getRecord())
-                    ->cancelParentActions()
-                    ->after(fn () => $this->loadDays()),
-            ])
-            ->after(function () {
-                $this->loadDays();
-            });
     }
 
     public function mount()
     {
         $this->weekStart = now()->startOfWeek();
+        $this->loadDays();
+    }
+
+    public function setViewMode($mode)
+    {
+        $this->viewMode = $mode;
+    }
+
+    public function setFilter($filter)
+    {
+        $this->activityFilter = $filter;
         $this->loadDays();
     }
 
@@ -68,7 +75,7 @@ class AgendaSemanaBoard extends Page
 
             $this->days[] = [
                 'date' => $date->format('Y-m-d'),
-                'label' => $date->locale('pt_BR')->translatedFormat('l (d/m)'),
+                'label' => $date->locale('pt_BR')->translatedFormat('l d'),
                 'tarefas' => $tarefas,
             ];
         }
@@ -92,15 +99,71 @@ class AgendaSemanaBoard extends Page
         $this->loadDays();
     }
 
-    public function moveTask($taskId, $newDate)
+    public function table(Table $table): Table
     {
-        $tarefa = TarefaAgenda::find($taskId);
-        if ($tarefa) {
-            $time = Carbon::parse($tarefa->data_inicio)->format('H:i:s');
-            $tarefa->update([
-                'data_inicio' => $newDate . ' ' . $time
+        return $table
+            ->query(TarefaAgenda::query()->with(['oportunidade', 'oportunidade.fornecedor']))
+            ->columns([
+                IconColumn::make('status')
+                    ->label('Concluído')
+                    ->icon(fn (string $state): string => match ($state) {
+                        'Concluída' => 'heroicon-o-check-circle',
+                        default => 'heroicon-o-stop',
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'Concluída' => 'success',
+                        default => 'gray',
+                    })
+                    ->action(function (TarefaAgenda $record) {
+                        $record->update(['status' => $record->status === 'Concluída' ? 'Pendente' : 'Concluída']);
+                    }),
+                TextColumn::make('titulo')
+                    ->label('Assunto')
+                    ->searchable()
+                    ->sortable()
+                    ->color('primary')
+                    ->weight('bold'),
+                TextColumn::make('oportunidade.titulo')
+                    ->label('Negócio')
+                    ->searchable()
+                    ->sortable()
+                    ->color('success'),
+                TextColumn::make('oportunidade.pessoa_contato_nome')
+                    ->label('Pessoa de contato')
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('oportunidade.pessoa_contato_email')
+                    ->label('E-mail')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('oportunidade.pessoa_contato_telefone')
+                    ->label('Telefone')
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('oportunidade.fornecedor.razao_social')
+                    ->label('Organização')
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('data_inicio')
+                    ->label('Data de vencimento')
+                    ->date('d \d\e F')
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Atribuído a usuário')
+                    ->getStateUsing(fn() => 'Usuário Logado') // Mock do owner por enquanto
+                    ->toggleable(),
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                \Filament\Actions\EditAction::make()
+                    ->form(fn (\Filament\Schemas\Schema $form) => \Modules\Comercial\Filament\Resources\TarefaAgendaResource::form($form)->getComponents()),
+            ])
+            ->bulkActions([
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
-            $this->loadDays();
-        }
     }
 }

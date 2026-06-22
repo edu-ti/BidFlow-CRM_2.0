@@ -137,6 +137,13 @@ class FunilVendasBoard extends Page
                         'motivo_perda' => $data['motivo_perda'],
                         'data_fechamento_real' => now(),
                     ]);
+                    
+                    $oportunidade->historicos()->create([
+                        'tipo' => 'sistema',
+                        'nota' => 'Oportunidade PERDIDA. Motivo: ' . $data['motivo_perda'],
+                        'user_id' => auth()->id(),
+                    ]);
+
                     $this->loadOportunidades();
                     Notification::make()->title('Sucesso')->body('Oportunidade movida para Perdido / Recusado')->success()->send();
                 }
@@ -169,7 +176,15 @@ class FunilVendasBoard extends Page
             }
 
             if ($newStage === 'Fechado / Aprovado') {
-                if ($oportunidade->propostas()->where('status', 'Aprovada')->count() === 0) {
+                $totalPropostas = $oportunidade->propostas()->count();
+                $propostasAprovadas = $oportunidade->propostas()->where('status', 'Aprovada')->count();
+
+                if ($totalPropostas === 0) {
+                    Notification::make()->title('Atenção')->body('Esta oportunidade não tem proposta vinculada. Crie uma proposta primeiro.')->danger()->send();
+                    return;
+                }
+
+                if ($propostasAprovadas === 0) {
                     Notification::make()->title('Atenção')->body('Aprove uma proposta antes de dar como Fechado / Aprovado.')->danger()->send();
                     return;
                 }
@@ -192,6 +207,12 @@ class FunilVendasBoard extends Page
             } else {
                 $oportunidade->update(['status' => $newStage]);
             }
+
+            $oportunidade->historicos()->create([
+                'tipo' => 'sistema',
+                'nota' => 'Oportunidade movida para a fase: ' . $newStage,
+                'user_id' => auth()->id(),
+            ]);
             
             $this->loadOportunidades();
             Notification::make()->title('Sucesso')->body('Oportunidade movida para ' . $newStage)->success()->send();

@@ -48,9 +48,20 @@
                              draggable="true"
                              @dragstart="draggedId = {{ $op['id'] }}; $event.dataTransfer.effectAllowed = 'move';"
                         >
-                            <button type="button" wire:click="mountAction('editOnboarding', { record: {{ $op['id'] }} })" class="font-bold text-left text-gray-800 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 truncate w-full text-sm">
-                                {{ $op['titulo'] }}
-                            </button>
+                            <div class="flex items-center justify-between">
+                                @if(!empty($op['oportunidade_id']))
+                                    <a href="{{ \Modules\Comercial\Filament\Resources\OportunidadeResource::getUrl('view', ['record' => $op['oportunidade_id']]) }}" class="font-bold text-left text-gray-800 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 truncate w-full text-sm">
+                                        {{ $op['titulo'] }}
+                                    </a>
+                                @else
+                                    <button type="button" wire:click="mountAction('editOnboarding', { record: {{ $op['id'] }} })" class="font-bold text-left text-gray-800 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 truncate w-full text-sm">
+                                        {{ $op['titulo'] }}
+                                    </button>
+                                @endif
+                                <button type="button" wire:click="mountAction('editOnboarding', { record: {{ $op['id'] }} })" class="text-gray-400 hover:text-indigo-600 transition-colors flex-shrink-0 ml-2">
+                                    <x-heroicon-s-pencil class="w-4 h-4"/>
+                                </button>
+                            </div>
                             
                             @if($fornecedor)
                                 <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide truncate">
