@@ -113,25 +113,25 @@
                     <div>
                         <div class="flex justify-between text-sm mb-1">
                             <span class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-emerald-500"></div> 75.3%
-                                <span class="text-emerald-600 font-normal text-xs flex items-center"><x-heroicon-m-arrow-trending-up style="width: 12px; height: 12px;"/> 2.424</span>
+                                <div class="w-2 h-2 rounded-full bg-emerald-500"></div> <span x-text="data.taxaSucesso.ganhoPct"></span>
+                                <span class="text-emerald-600 font-normal text-xs flex items-center"><x-heroicon-m-arrow-trending-up style="width: 12px; height: 12px;"/> <span x-text="data.taxaSucesso.ganhoQtd"></span></span>
                             </span>
-                            <span class="text-gray-500">12.565 Clientes</span>
+                            <span class="text-gray-500" x-text="data.taxaSucesso.ganhoLabel"></span>
                         </div>
                         <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
-                            <div class="bg-emerald-500 h-2 rounded-full" style="width: 75.3%"></div>
+                            <div class="bg-emerald-500 h-2 rounded-full" :style="`width: ${data.taxaSucesso.ganhoPct}`"></div>
                         </div>
                     </div>
                     <div>
                         <div class="flex justify-between text-sm mb-1">
                             <span class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-amber-500"></div> 24.7%
-                                <span class="text-red-500 font-normal text-xs flex items-center"><x-heroicon-m-arrow-trending-down style="width: 12px; height: 12px;"/> 213</span>
+                                <div class="w-2 h-2 rounded-full bg-amber-500"></div> <span x-text="data.taxaSucesso.perdidoPct"></span>
+                                <span class="text-red-500 font-normal text-xs flex items-center"><x-heroicon-m-arrow-trending-down style="width: 12px; height: 12px;"/> <span x-text="data.taxaSucesso.perdidoQtd"></span></span>
                             </span>
-                            <span class="text-gray-500">1.421 Propostas</span>
+                            <span class="text-gray-500" x-text="data.taxaSucesso.perdidoLabel"></span>
                         </div>
                         <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
-                            <div class="bg-amber-500 h-2 rounded-full" style="width: 24.7%"></div>
+                            <div class="bg-amber-500 h-2 rounded-full" :style="`width: ${data.taxaSucesso.perdidoPct}`"></div>
                         </div>
                     </div>
                 </div>
@@ -169,8 +169,8 @@
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Receita Mensal</h3>
                         <div class="flex items-baseline gap-2 mt-1">
-                            <span class="text-3xl font-bold text-gray-900 dark:text-white">R$ 145.567,00</span>
-                            <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 text-sm font-medium flex items-center gap-1"><x-heroicon-m-arrow-up style="width: 12px; height: 12px;"/> 4.9%</span>
+                            <span class="text-3xl font-bold text-gray-900 dark:text-white" x-text="data.salesAtual"></span>
+                            <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 text-sm font-medium flex items-center gap-1"><x-heroicon-m-arrow-up style="width: 12px; height: 12px;"/> 0%</span>
                         </div>
                     </div>
                     <div class="flex bg-gray-100 dark:bg-gray-800 rounded-full p-1">
@@ -198,7 +198,7 @@
                         <span class="text-gray-400 font-medium">R$ 200.000,00</span>
                     </div>
                     <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 mt-2">
-                        <div class="bg-blue-500 h-2 rounded-full" style="width: 70.8%"></div>
+                        <div class="bg-blue-500 h-2 rounded-full" :style="`width: ${data.gaugeMeta}%`"></div>
                     </div>
                 </div>
             </div>
@@ -230,22 +230,19 @@
                     <div class="flex justify-between items-center text-sm">
                         <span class="flex items-center gap-2 text-gray-600 dark:text-gray-400"><div class="w-1.5 h-6 rounded-sm bg-emerald-500"></div> Ganho</span>
                         <div class="flex items-center gap-3">
-                            <span class="font-bold text-gray-900 dark:text-white">1.650</span>
-                            <span class="text-emerald-500 flex items-center text-xs w-12"><x-heroicon-m-arrow-trending-up class="w-3 h-3"/> 424</span>
+                            <span class="font-bold text-gray-900 dark:text-white" x-text="data.chartStatus.ganho"></span>
                         </div>
                     </div>
                     <div class="flex justify-between items-center text-sm">
                         <span class="flex items-center gap-2 text-gray-600 dark:text-gray-400"><div class="w-1.5 h-6 rounded-sm bg-amber-400"></div> Em Andamento</span>
                         <div class="flex items-center gap-3">
-                            <span class="font-bold text-gray-900 dark:text-white">350</span>
-                            <span class="text-emerald-500 flex items-center text-xs w-12"><x-heroicon-m-arrow-trending-up class="w-3 h-3"/> 24</span>
+                            <span class="font-bold text-gray-900 dark:text-white" x-text="data.chartStatus.andamento"></span>
                         </div>
                     </div>
                     <div class="flex justify-between items-center text-sm">
                         <span class="flex items-center gap-2 text-gray-600 dark:text-gray-400"><div class="w-1.5 h-6 rounded-sm bg-gray-300"></div> Perdido</span>
                         <div class="flex items-center gap-3">
-                            <span class="font-bold text-gray-900 dark:text-white">458</span>
-                            <span class="text-red-500 flex items-center text-xs w-12"><x-heroicon-m-arrow-trending-down class="w-3 h-3"/> 213</span>
+                            <span class="font-bold text-gray-900 dark:text-white" x-text="data.chartStatus.perdido"></span>
                         </div>
                     </div>
                     <button class="w-full mt-2 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
@@ -287,55 +284,54 @@
                             <th scope="col" class="px-4 py-3 font-medium text-center">Fase</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody x-show="activeTab === 'comercial'">
+                        @forelse($ultimosNegocios as $negocio)
                         <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                             <td class="p-4"><input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded"></td>
-                            <td class="px-4 py-4 font-medium text-gray-900 dark:text-white">DE124132</td>
+                            <td class="px-4 py-4 font-medium text-gray-900 dark:text-white">OP-{{ $negocio->id }}</td>
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-gray-200 text-xs flex items-center justify-center font-bold text-gray-600">JD</div>
-                                    <span x-text="activeTab === 'comercial' ? 'John Doe' : 'TechCorp Inc.'"></span>
+                                    <div class="w-6 h-6 rounded-full bg-gray-200 text-xs flex items-center justify-center font-bold text-gray-600">
+                                        {{ substr($negocio->user->name ?? 'U', 0, 2) }}
+                                    </div>
+                                    <span>{{ $negocio->user->name ?? 'Sem Vendedor' }}</span>
                                 </div>
                             </td>
-                            <td class="px-4 py-4"><div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Licença de Software</div></td>
-                            <td class="px-4 py-4 text-right font-medium text-gray-900 dark:text-white">R$ 1.850,00</td>
-                            <td class="px-4 py-4 text-center">15/06/2026</td>
+                            <td class="px-4 py-4"><div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div> {{ \Illuminate\Support\Str::limit($negocio->titulo, 25) }}</div></td>
+                            <td class="px-4 py-4 text-right font-medium text-gray-900 dark:text-white">R$ {{ number_format($negocio->valor_estimado, 2, ',', '.') }}</td>
+                            <td class="px-4 py-4 text-center">{{ $negocio->created_at->format('d/m/Y') }}</td>
                             <td class="px-4 py-4 text-center">
-                                <span class="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-md dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">Em Negociação</span>
+                                <span class="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-md dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">{{ ucfirst($negocio->status) }}</span>
                             </td>
                         </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="px-4 py-4 text-center text-gray-500">Nenhum negócio encontrado.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                    <tbody x-show="activeTab === 'licitacao'" x-cloak>
+                        @forelse($ultimasLicitacoes as $licitacao)
                         <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                             <td class="p-4"><input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded"></td>
-                            <td class="px-4 py-4 font-medium text-gray-900 dark:text-white">DE124133</td>
+                            <td class="px-4 py-4 font-medium text-gray-900 dark:text-white">LIC-{{ $licitacao->id }}</td>
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-gray-200 text-xs flex items-center justify-center font-bold text-gray-600">SC</div>
-                                    <span x-text="activeTab === 'comercial' ? 'Simon Cyrene' : 'Global Parts'"></span>
+                                    <span>{{ \Illuminate\Support\Str::limit($licitacao->orgao_razao_social ?? 'Não Informado', 25) }}</span>
                                 </div>
                             </td>
-                            <td class="px-4 py-4"><div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Consultoria</div></td>
-                            <td class="px-4 py-4 text-right font-medium text-gray-900 dark:text-white">R$ 4.250,00</td>
-                            <td class="px-4 py-4 text-center">20/06/2026</td>
+                            <td class="px-4 py-4"><div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> {{ \Illuminate\Support\Str::limit($licitacao->objeto, 25) }}</div></td>
+                            <td class="px-4 py-4 text-right font-medium text-gray-900 dark:text-white">R$ {{ number_format($licitacao->itens->sum('valor_total'), 2, ',', '.') }}</td>
+                            <td class="px-4 py-4 text-center">{{ $licitacao->created_at->format('d/m/Y') }}</td>
                             <td class="px-4 py-4 text-center">
-                                <span class="px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-md dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Proposta Enviada</span>
+                                <span class="px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-md dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">{{ ucfirst($licitacao->status) }}</span>
                             </td>
                         </tr>
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                            <td class="p-4"><input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded"></td>
-                            <td class="px-4 py-4 font-medium text-gray-900 dark:text-white">DE124134</td>
-                            <td class="px-4 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-gray-200 text-xs flex items-center justify-center font-bold text-gray-600">JS</div>
-                                    <span x-text="activeTab === 'comercial' ? 'Jane Smith' : 'Distribuidora ABC'"></span>
-                                </div>
-                            </td>
-                            <td class="px-4 py-4"><div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Pacote de Suporte</div></td>
-                            <td class="px-4 py-4 text-right font-medium text-gray-900 dark:text-white">R$ 5.500,00</td>
-                            <td class="px-4 py-4 text-center">30/05/2026</td>
-                            <td class="px-4 py-4 text-center">
-                                <span class="px-2.5 py-1 text-xs font-medium bg-emerald-50 text-emerald-700 rounded-md dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Fechado - Ganho</span>
-                            </td>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="px-4 py-4 text-center text-gray-500">Nenhuma licitação encontrada.</td>
                         </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -348,28 +344,8 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardData', () => ({
                 activeTab: 'comercial',
-                comercialData: {
-                    conversionRate: '92%',
-                    revenue: '15.832',
-                    salesAtual: 'R$ 141.600,00',
-                    stats: [
-                        { label: 'Total Negócios', value: '2.500', growth: '4.9%', icon: '<svg style="width: 24px; height: 24px;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>' },
-                        { label: 'Total Clientes', value: '1.340', growth: '2.7%', icon: '<svg style="width: 24px; height: 24px;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>' },
-                        { label: 'Receita Total', value: 'R$ 45.567', growth: '8.4%', icon: '<svg style="width: 24px; height: 24px;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' },
-                        { label: 'Negócios Ganhos', value: '865', growth: '12.2%', icon: '<svg style="width: 24px; height: 24px;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>' }
-                    ]
-                },
-                licitacaoData: {
-                    conversionRate: '84%',
-                    revenue: '45.120',
-                    salesAtual: 'R$ 168.400,00',
-                    stats: [
-                        { label: 'Total Propostas', value: '1.200', growth: '2.1%', icon: '<svg style="width: 24px; height: 24px;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>' },
-                        { label: 'Fornecedores Ativos', value: '342', growth: '5.6%', icon: '<svg style="width: 24px; height: 24px;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>' },
-                        { label: 'Total Faturado', value: 'R$ 89.230', growth: '11.2%', icon: '<svg style="width: 24px; height: 24px;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' },
-                        { label: 'Licitações Ganhas', value: '412', growth: '15.3%', icon: '<svg style="width: 24px; height: 24px;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>' }
-                    ]
-                },
+                comercialData: @json($comercialData),
+                licitacaoData: @json($licitacaoData),
                 get data() {
                     return this.activeTab === 'comercial' ? this.comercialData : this.licitacaoData;
                 },
@@ -396,7 +372,7 @@
 
                     // 1. Revenue Insights (Bar Chart Mensal)
                     var revenueOptions = {
-                        series: [{ name: 'Receita', data: [15000, 26000, 22000, 18000, 20000, 28000, 32000, 25000, 19000, 21000, 23000, 31000] }],
+                        series: [{ name: 'Receita', data: this.data.chartReceitaMensal }],
                         chart: { type: 'bar', height: 260, toolbar: { show: false }, fontFamily: 'inherit' },
                         plotOptions: { bar: { borderRadius: 4, columnWidth: '40%' } },
                         dataLabels: { enabled: false },
@@ -412,7 +388,7 @@
 
                     // 2. Sales Overview (Semi-circle Gauge)
                     var gaugeOptions = {
-                        series: [70.8],
+                        series: [this.data.gaugeMeta],
                         chart: { type: 'radialBar', height: 280, offsetY: -20, sparkline: { enabled: true } },
                         plotOptions: { radialBar: { startAngle: -90, endAngle: 90, track: { background: "#e5e7eb", strokeWidth: '97%', margin: 5, dropShadow: { enabled: false } }, dataLabels: { name: { show: false }, value: { offsetY: -2, fontSize: '32px', fontWeight: 'bold' } } } },
                         fill: { type: 'gradient', gradient: { shade: 'light', shadeIntensity: 0.4, inverseColors: false, opacityFrom: 1, opacityTo: 1, stops: [0, 50, 53, 91] } },
@@ -424,12 +400,12 @@
 
                     // 3. Revenue Forecast (Grouped Bar)
                     var forecastOptions = {
-                        series: [{ name: 'Receita', data: [44, 55, 41, 67, 22, 43, 21, 49] }, { name: 'Custo', data: [13, 23, 20, 8, 13, 27, 33, 12] }],
+                        series: [{ name: 'Receita', data: this.data.chartValues.length ? this.data.chartValues : [0] }],
                         chart: { type: 'bar', height: 260, toolbar: { show: false }, fontFamily: 'inherit' },
                         plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 3 } },
                         dataLabels: { enabled: false },
                         stroke: { show: true, width: 2, colors: ['transparent'] },
-                        xaxis: { categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago'], labels: { style: { colors: '#9ca3af' } } },
+                        xaxis: { categories: this.data.chartCategories.length ? this.data.chartCategories : ['-'], labels: { style: { colors: '#9ca3af' } } },
                         yaxis: { labels: { style: { colors: '#9ca3af' } } },
                         fill: { opacity: 1 },
                         colors: ['#34d399', '#fbbf24'],
@@ -441,11 +417,11 @@
 
                     // 4. Customer Segmentation (Donut)
                     var segmentationOptions = {
-                        series: [1650, 350, 458],
+                        series: [this.data.chartStatus.ganho, this.data.chartStatus.andamento, this.data.chartStatus.perdido],
                         chart: { type: 'donut', height: 240, fontFamily: 'inherit' },
                         labels: ['Ganho', 'Em Andamento', 'Perdido'],
                         dataLabels: { enabled: false },
-                        plotOptions: { pie: { donut: { size: '65%', labels: { show: true, name: { show: true, fontSize: '12px', color: '#6b7280' }, value: { show: true, fontSize: '24px', fontWeight: 'bold' }, total: { show: true, showAlways: true, label: 'Total', formatter: function (w) { return "2.458" } } } } } },
+                        plotOptions: { pie: { donut: { size: '65%', labels: { show: true, name: { show: true, fontSize: '12px', color: '#6b7280' }, value: { show: true, fontSize: '24px', fontWeight: 'bold' }, total: { show: true, showAlways: true, label: 'Total', formatter: function (w) { return w.globals.seriesTotals.reduce((a, b) => { return a + b }, 0) } } } } } },
                         stroke: { width: 4, colors: ['#ffffff'] },
                         colors: ['#10b981', '#fbbf24', '#d1d5db'],
                         legend: { show: false }
@@ -455,12 +431,22 @@
 
                     // Listen to tab changes to update charts data slightly to show interaction
                     window.addEventListener('tab-changed', (e) => {
-                        const isComercial = e.detail === 'comercial';
+                        const newData = e.detail === 'comercial' ? this.comercialData : this.licitacaoData;
                         
-                        // Animação/Mudança nos dados do Forecast
+                        revenueChart.updateSeries([{ name: 'Receita', data: newData.chartReceitaMensal }]);
+                        gaugeChart.updateSeries([newData.gaugeMeta]);
+
                         forecastChart.updateSeries([
-                            { name: 'Receita', data: isComercial ? [44, 55, 41, 67, 22, 43, 21, 49] : [50, 45, 60, 55, 40, 35, 70, 65] },
-                            { name: 'Custo', data: isComercial ? [13, 23, 20, 8, 13, 27, 33, 12] : [20, 15, 25, 20, 15, 10, 30, 25] }
+                            { name: 'Receita', data: newData.chartValues.length ? newData.chartValues : [0] }
+                        ]);
+                        forecastChart.updateOptions({
+                            xaxis: { categories: newData.chartCategories.length ? newData.chartCategories : ['-'] }
+                        });
+
+                        segmentationChart.updateSeries([
+                            newData.chartStatus.ganho,
+                            newData.chartStatus.andamento,
+                            newData.chartStatus.perdido
                         ]);
                     });
                 }
