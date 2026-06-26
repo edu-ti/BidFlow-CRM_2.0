@@ -37,6 +37,19 @@ class Oportunidade extends Model
         return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
+    public function atualizarValorEstimado()
+    {
+        $total = $this->oportunidadeProdutos()->get()->sum(function ($item) {
+            return (float) $item->quantidade * (float) $item->preco_unitario;
+        });
+
+        $this->update(['valor_estimado' => $total]);
+
+        if ($this->onboarding) {
+            $this->onboarding->update(['valor_fechado' => $total]);
+        }
+    }
+
     public function produtos(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Produto::class, 'oportunidade_produto')

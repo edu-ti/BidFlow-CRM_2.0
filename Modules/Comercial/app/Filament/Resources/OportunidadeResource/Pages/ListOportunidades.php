@@ -13,6 +13,11 @@ class ListOportunidades extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            \Filament\Actions\Action::make('kanban')
+                ->label('Ver Kanban')
+                ->icon('heroicon-m-view-columns')
+                ->color('gray')
+                ->url(route('filament.admin.pages.funil-vendas-board')),
             Actions\CreateAction::make(),
         ];
     }

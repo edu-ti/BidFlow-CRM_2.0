@@ -36,10 +36,11 @@ class OportunidadeResource extends Resource
                             ->schema([
                                 Forms\Components\TextInput::make('pessoa_contato_nome')->label('Pessoa de contato'),
                                 Forms\Components\Select::make('fornecedor_id')
-                                    ->label('Organização')
+                                    ->label('Cliente')
                                     ->relationship('fornecedor', 'razao_social')
                                     ->searchable()
-                                    ->preload(),
+                                    ->preload()
+                                    ->createOptionForm(fn (\Filament\Schemas\Schema $form) => \Modules\Fornecedores\Filament\Resources\FornecedorResource::form($form)->getComponents()),
                                 Forms\Components\TextInput::make('pessoa_contato_telefone')->label('Telefone'),
                                 Forms\Components\TextInput::make('pessoa_contato_email')->label('E-mail')->email(),
                             ]),
@@ -64,6 +65,7 @@ class OportunidadeResource extends Resource
                                             ->required()
                                             ->searchable()
                                             ->preload()
+                                            ->createOptionForm(fn (\Filament\Schemas\Schema $form) => \Modules\Comercial\Filament\Resources\ProdutoResource::form($form)->getComponents())
                                             ->live()
                                             ->afterStateUpdated(function ($state, callable $set) {
                                                 if ($state) {
@@ -128,7 +130,13 @@ class OportunidadeResource extends Resource
                                     ])
                                     ->default('Prospectando')
                                     ->required()
-                                    ->live(),
+                                    ->rules([
+                                        fn ($record) => function (string $attribute, $value, \Closure $fail) use ($record) {
+                                            if ($value === 'Proposta' && (!$record || $record->propostas()->count() === 0)) {
+                                                $fail('Crie uma Proposta vinculada (ação na aba Propostas ou via Kanban) antes de mover para a fase de Proposta.');
+                                            }
+                                        },
+                                    ]),
                             ]),
                         \Filament\Schemas\Components\Grid::make(2)
                             ->schema([
@@ -210,9 +218,14 @@ class OportunidadeResource extends Resource
                     ->collapsible(),
             ])
             ->actions([
-                \Filament\Tables\Actions\ViewAction::make()->label('Abrir')->button()->color('gray'),
-                \Filament\Tables\Actions\EditAction::make()->label('Editar')->button()->color('info'),
-                \Filament\Tables\Actions\DeleteAction::make()->label('Excluir')->button()->color('danger'),
+                \Filament\Actions\Action::make('view')
+                    ->label('Abrir')
+                    ->icon('heroicon-m-eye')
+                    ->button()
+                    ->color('gray')
+                    ->url(fn ($record) => OportunidadeResource::getUrl('view', ['record' => $record])),
+                \Filament\Actions\EditAction::make()->label('Editar')->button()->color('info'),
+                \Filament\Actions\DeleteAction::make()->label('Excluir')->button()->color('danger'),
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([

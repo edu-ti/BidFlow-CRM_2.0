@@ -19,4 +19,19 @@ class OportunidadeProduto extends Pivot
     {
         return $this->belongsTo(Produto::class, 'produto_id');
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($pivot) {
+            if ($pivot->oportunidade) {
+                $pivot->oportunidade->atualizarValorEstimado();
+            }
+        });
+
+        static::deleted(function ($pivot) {
+            if ($pivot->oportunidade) {
+                $pivot->oportunidade->atualizarValorEstimado();
+            }
+        });
+    }
 }

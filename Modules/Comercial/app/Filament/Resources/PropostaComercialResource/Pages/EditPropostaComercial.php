@@ -33,4 +33,24 @@ class EditPropostaComercial extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getSaveFormAction()
+                ->label('Salvar Proposta'),
+            \Filament\Actions\Action::make('saveAndStay')
+                ->label('Salvar e permanecer na mesma página')
+                ->color('gray')
+                ->action(function () {
+                    $this->save(shouldRedirect: false);
+                }),
+            $this->getCancelFormAction(),
+        ];
+    }
 }

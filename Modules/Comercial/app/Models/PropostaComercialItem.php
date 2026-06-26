@@ -33,4 +33,19 @@ class PropostaComercialItem extends Model
     {
         return $this->belongsTo(PropostaComercial::class, 'proposta_comercial_id');
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($item) {
+            if ($item->proposta) {
+                $item->proposta->atualizarValorTotal();
+            }
+        });
+
+        static::deleted(function ($item) {
+            if ($item->proposta) {
+                $item->proposta->atualizarValorTotal();
+            }
+        });
+    }
 }

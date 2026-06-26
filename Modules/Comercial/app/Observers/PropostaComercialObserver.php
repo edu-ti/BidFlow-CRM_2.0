@@ -24,8 +24,23 @@ class PropostaComercialObserver
                 }
 
                 if ($proposta->status === 'Aprovada') {
-                    $oportunidade->update(['status' => 'Fechado/Ganho']);
+                    $oportunidade->update([
+                        'status' => 'Fechado / Aprovado',
+                        'data_fechamento_real' => now(),
+                    ]);
                     
+                    if (!$oportunidade->onboarding) {
+                        \Modules\Comercial\Models\Onboarding::create([
+                            'oportunidade_id' => $oportunidade->id,
+                            'fornecedor_id' => $oportunidade->fornecedor_id,
+                            'titulo' => $oportunidade->titulo,
+                            'status' => 'Transição de Vendas',
+                            'valor_fechado' => $oportunidade->valor_estimado,
+                            'data_venda' => now(),
+                            'resumo_venda' => $oportunidade->descricao,
+                        ]);
+                    }
+
                     // Handoff Financeiro
                     $this->triggerFinancialHandoff($proposta);
                 }

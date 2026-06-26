@@ -36,9 +36,9 @@ class CreatePropostaComercial extends CreateRecord
     {
         return [
             $this->getCreateFormAction()
-                ->label('Criar Proposta'),
+                ->label('Salvar Proposta'),
             Actions\Action::make('createAndEdit')
-                ->label('Criar e permanecer na mesma página')
+                ->label('Salvar e permanecer na mesma página')
                 ->color('gray')
                 ->action(function () {
                     $this->create();

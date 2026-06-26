@@ -78,7 +78,7 @@
                         $clipPath = 'polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%)';
                     }
                 @endphp
-                <div class="flex-1 flex items-center justify-center text-[10px] md:text-xs {{ $bgClass }} transition-colors duration-200 hover:opacity-90 uppercase tracking-wide" style="clip-path: {{ $clipPath }}">
+                <div wire:click="mudarStatus('{{ $stage }}')" class="flex-1 flex items-center justify-center text-[10px] md:text-xs {{ $bgClass }} transition-colors duration-200 hover:opacity-90 uppercase tracking-wide cursor-pointer" style="clip-path: {{ $clipPath }}">
                     {{ $stage === 'Fechado / Aprovado' ? 'Ganho' : $stage }}
                 </div>
             @endforeach
@@ -132,17 +132,17 @@
                         <div class="flex flex-col gap-4">
                             <div class="flex justify-between items-center mb-2">
                                 <h3 class="font-bold text-gray-700 dark:text-gray-300 text-sm">Propostas Comerciais</h3>
-                                <a href="{{ \Modules\Comercial\Filament\Resources\PropostaComercialResource::getUrl('create', ['oportunidade_id' => $record->id, 'fornecedor_id' => $record->fornecedor_id]) }}" class="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white text-xs font-bold rounded-lg shadow transition-colors">
+                                <button wire:click="mountAction('createPropostaFullAction')" class="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white text-xs font-bold rounded-lg shadow transition-colors">
                                     + Nova Proposta
-                                </a>
+                                </button>
                             </div>
                             
                             @forelse($record->propostas as $proposta)
                                 <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex justify-between items-center hover:shadow-md transition-shadow">
                                     <div class="flex flex-col gap-1">
-                                        <a href="{{ \Modules\Comercial\Filament\Resources\PropostaComercialResource::getUrl('edit', ['record' => $proposta->id]) }}" class="font-bold text-primary-600 hover:underline">
+                                        <button wire:click="mountAction('editPropostaFullAction', { record: {{ $proposta->id }} })" class="font-bold text-primary-600 hover:underline text-left">
                                             Proposta {{ $proposta->numero ? '#'.$proposta->numero : '#'.str_pad($proposta->id, 4, '0', STR_PAD_LEFT) }}
-                                        </a>
+                                        </button>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">Data: {{ $proposta->data_proposta ? \Carbon\Carbon::parse($proposta->data_proposta)->format('d/m/Y') : \Carbon\Carbon::parse($proposta->created_at)->format('d/m/Y') }}</p>
                                     </div>
                                     <div class="text-right flex flex-col items-end gap-1">

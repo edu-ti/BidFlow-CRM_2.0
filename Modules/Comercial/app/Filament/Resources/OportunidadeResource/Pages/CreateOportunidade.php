@@ -10,6 +10,11 @@ class CreateOportunidade extends CreateRecord
 {
     protected static string $resource = OportunidadeResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return route('filament.admin.pages.funil-vendas-board');
+    }
+
     protected bool $criarTarefa = false;
     protected ?string $dataTarefa = null;
 

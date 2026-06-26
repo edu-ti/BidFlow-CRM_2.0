@@ -43,6 +43,17 @@ class PropostaComercial extends Model
         return $this->belongsTo(\Modules\Fornecedores\Models\Fornecedor::class, 'fornecedor_id');
     }
 
+    public function atualizarValorTotal()
+    {
+        $totalItens = $this->itens()->get()->sum(function ($item) {
+            return (float) $item->valor_total;
+        });
+
+        $frete = (float) $this->valor_frete;
+
+        $this->update(['valor_total' => $totalItens + $frete]);
+    }
+
     public function itens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PropostaComercialItem::class, 'proposta_comercial_id');

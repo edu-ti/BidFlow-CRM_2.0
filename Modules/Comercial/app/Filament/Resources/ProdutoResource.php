@@ -115,7 +115,12 @@ class ProdutoResource extends Resource
                 //
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make()->label('Detalhes')->button()->color('primary'),
+                \Filament\Actions\Action::make('view')
+                    ->label('Detalhes')
+                    ->icon('heroicon-m-eye')
+                    ->button()
+                    ->color('primary')
+                    ->url(fn ($record) => ProdutoResource::getUrl('view', ['record' => $record])),
                 \Filament\Actions\EditAction::make()->label('Editar')->button()->color('info'),
                 \Filament\Actions\DeleteAction::make()->label('Excluir')->button()->color('danger'),
             ])
