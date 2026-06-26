@@ -20,6 +20,10 @@ class PropostaComercialItem extends Model
         //return PropostaComercialItemFactory::new();
     }
 
+    protected $casts = [
+        'parametros_adicionais' => 'array',
+    ];
+
     public function produto(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Produto::class, 'produto_id');

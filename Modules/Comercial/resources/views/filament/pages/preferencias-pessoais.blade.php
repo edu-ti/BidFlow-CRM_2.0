@@ -26,13 +26,25 @@
                     <div class="w-1/4"></div>
                     <div class="w-3/4 flex items-center gap-4">
                         <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden">
-                            <x-heroicon-s-user class="w-8 h-8 text-gray-400 dark:text-gray-500 mt-2"/>
+                            @if ($photo)
+                                <img src="{{ $photo->temporaryUrl() }}" class="w-full h-full object-cover">
+                            @elseif(auth()->user()->avatar_url)
+                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url(auth()->user()->avatar_url) }}" class="w-full h-full object-cover">
+                            @else
+                                <x-heroicon-s-user class="w-8 h-8 text-gray-400 dark:text-gray-500 mt-2"/>
+                            @endif
                         </div>
                         <div>
-                            <div class="text-sm">
-                                <a href="#" class="text-[#3b82f6] hover:underline font-bold">Escolher foto</a>
-                                <span class="text-gray-400 mx-1">&middot;</span>
-                                <a href="#" class="text-[#3b82f6] hover:underline font-bold">Apagar</a>
+                            <div class="text-sm flex items-center gap-2">
+                                <label class="text-[#3b82f6] hover:underline font-bold cursor-pointer">
+                                    Escolher foto
+                                    <input type="file" wire:model="photo" class="hidden" accept="image/*">
+                                </label>
+                                <div wire:loading wire:target="photo" class="text-xs text-gray-500">
+                                    Carregando...
+                                </div>
+                                <span class="text-gray-400">&middot;</span>
+                                <button type="button" wire:click="apagarFoto" class="text-[#3b82f6] hover:underline font-bold">Apagar</button>
                             </div>
                             <p class="text-xs text-gray-500 mt-1">Tamanho máx. 2MB. Formatos: JPG, GIF, PNG.</p>
                         </div>
@@ -55,6 +67,30 @@
                         <button type="button" class="border border-gray-300 dark:border-gray-600 rounded p-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <x-heroicon-o-pencil class="w-4 h-4 text-gray-600 dark:text-gray-400"/>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Form: Telefone -->
+                <div class="flex items-center">
+                    <label class="w-1/4 text-sm text-gray-700 dark:text-gray-300 text-right pr-6">Telefone</label>
+                    <div class="w-3/4 max-w-lg">
+                        <input type="text" wire:model.defer="telefone" class="w-full rounded border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-800 py-1.5 px-3 border outline-none">
+                    </div>
+                </div>
+
+                <!-- Form: Celular -->
+                <div class="flex items-center">
+                    <label class="w-1/4 text-sm text-gray-700 dark:text-gray-300 text-right pr-6">Celular</label>
+                    <div class="w-3/4 max-w-lg">
+                        <input type="text" wire:model.defer="celular" class="w-full rounded border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-800 py-1.5 px-3 border outline-none">
+                    </div>
+                </div>
+
+                <!-- Form: Cargo/Função -->
+                <div class="flex items-center">
+                    <label class="w-1/4 text-sm text-gray-700 dark:text-gray-300 text-right pr-6">Cargo/Função</label>
+                    <div class="w-3/4 max-w-lg">
+                        <input type="text" wire:model.defer="cargo_funcao" class="w-full rounded border-gray-300 dark:border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-800 py-1.5 px-3 border outline-none">
                     </div>
                 </div>
 

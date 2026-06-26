@@ -20,6 +20,24 @@ class PropostaComercial extends Model
         //return PropostaComercialFactory::new();
     }
 
+    protected $casts = [
+        'termos_comerciais' => 'array',
+    ];
+
+    protected static function booted()
+    {
+        static::creating(function ($proposta) {
+            if (!$proposta->user_id) {
+                $proposta->user_id = auth()->id();
+            }
+        });
+    }
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
+
     public function fornecedor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(\Modules\Fornecedores\Models\Fornecedor::class, 'fornecedor_id');
