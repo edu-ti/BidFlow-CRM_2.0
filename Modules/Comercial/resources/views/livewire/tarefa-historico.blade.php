@@ -1,6 +1,6 @@
 <div class="mt-4">
     <div class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-        <x-heroicon-o-clock class="w-5 h-5"/>
+        <x-heroicon-o-clock style="width: 1.25rem; height: 1.25rem; flex-shrink: 0;" />
         Histórico e Anotações
     </div>
     
@@ -11,10 +11,9 @@
             placeholder="Adicionar nova atualização de andamento..."></textarea>
         
         <div class="flex justify-end mt-2">
-            <button wire:click="salvarNota" 
-                class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-primary-700 transition text-sm font-medium">
+            <x-filament::button type="button" wire:click="salvarNota" color="primary">
                 Salvar Nota
-            </button>
+            </x-filament::button>
         </div>
     </div>
 

@@ -13,7 +13,16 @@ class EditTarefaAgenda extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('voltar')
+                ->label('Voltar')
+                ->url(\Modules\Comercial\Filament\Pages\AgendaSemanaBoard::getUrl())
+                ->color('gray'),
             Actions\DeleteAction::make(),
         ];
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return \Modules\Comercial\Filament\Pages\AgendaSemanaBoard::getUrl();
     }
 }

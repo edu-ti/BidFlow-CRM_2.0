@@ -51,9 +51,15 @@
                     <button wire:click="currentWeek" class="px-3 py-1 text-sm font-bold hover:bg-gray-100 dark:hover:bg-gray-700">Hoje</button>
                     <button wire:click="nextWeek" class="px-2 py-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-md border-l border-gray-200 dark:border-gray-700"><x-heroicon-m-chevron-right class="w-4 h-4"/></button>
                 </div>
-                <a href="/admin/sincronizacao-calendario" class="px-3 py-1 text-[10px] font-bold border border-red-300 text-red-600 bg-red-50 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400 rounded-full hover:bg-red-100 transition whitespace-nowrap">
-                    SINCRONIZAÇÃO INATIVA
-                </a>
+                @if(auth()->user() && auth()->user()->google_access_token)
+                    <a href="/admin/sincronizacao-calendario" class="px-3 py-1 text-[10px] font-bold border border-green-300 text-green-700 bg-green-50 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400 rounded-full hover:bg-green-100 transition whitespace-nowrap flex items-center gap-1">
+                        <x-heroicon-o-check-circle class="w-3 h-3"/> CONECTADO
+                    </a>
+                @else
+                    <a href="/admin/sincronizacao-calendario" class="px-3 py-1 text-[10px] font-bold border border-red-300 text-red-600 bg-red-50 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400 rounded-full hover:bg-red-100 transition whitespace-nowrap">
+                        SINCRONIZAÇÃO INATIVA
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -102,7 +108,7 @@
                                         @endphp
                                         <div class="absolute w-[95%] mx-auto left-0 right-0 bg-blue-100 dark:bg-blue-900/40 text-gray-800 dark:text-gray-200 border border-blue-200 dark:border-blue-800/50 rounded-md p-1.5 text-[10px] shadow-sm hover:ring-2 ring-blue-400 cursor-pointer overflow-hidden z-10 pointer-events-auto transition-shadow group"
                                              style="top: {{ $top }}px; height: 50px;"
-                                             wire:click="mountAction('editTarefa', { record: {{ $tarefa['id'] }} })"
+                                             wire:click="goToEdit({{ $tarefa['id'] }})"
                                         >
                                             <div class="flex items-start gap-1">
                                                 <x-heroicon-s-user class="w-3 h-3 text-gray-400 mt-0.5 shrink-0"/>

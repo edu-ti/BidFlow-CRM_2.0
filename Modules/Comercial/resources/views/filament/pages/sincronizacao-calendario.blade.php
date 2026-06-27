@@ -34,7 +34,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase mb-2 text-center">Status</p>
                     @if($syncStatus)
                         <span class="flex items-center gap-1 border border-green-300 bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase">
-                            <x-heroicon-o-arrow-path class="w-3 h-3 animate-spin"/> Sincronizando
+                            <x-heroicon-o-check-circle class="w-4 h-4"/> Conectado
                         </span>
                     @else
                         <span class="flex items-center gap-1 border border-gray-300 bg-gray-50 text-gray-700 text-xs font-bold px-3 py-1 rounded-full uppercase">

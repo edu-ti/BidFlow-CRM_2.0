@@ -20,19 +20,38 @@ class SincronizacaoCalendario extends Page
     public $privateEvents = 'Apenas eu';
     public $advancedSync = 'no_contact';
 
+    public function mount()
+    {
+        $this->syncStatus = !empty(auth()->user()->google_access_token);
+        $this->syncType = auth()->user()->google_sync_mode ?? 'unidirectional';
+    }
+
+    public function updatedSyncType($value)
+    {
+        auth()->user()->update(['google_sync_mode' => $value]);
+        \Filament\Notifications\Notification::make()
+            ->title('Modo de sincronização atualizado')
+            ->success()
+            ->send();
+    }
+
     public function toggleSync()
     {
-        $this->syncStatus = !$this->syncStatus;
         if ($this->syncStatus) {
-            \Filament\Notifications\Notification::make()
-                ->title('Sincronização Ativada')
-                ->success()
-                ->send();
-        } else {
+            // Desconectar
+            auth()->user()->update([
+                'google_access_token' => null,
+                'google_refresh_token' => null,
+                'google_token_expires_at' => null,
+            ]);
+            $this->syncStatus = false;
             \Filament\Notifications\Notification::make()
                 ->title('Sincronização Parada')
                 ->danger()
                 ->send();
+        } else {
+            // Conectar - Redirecionar para Google
+            return redirect()->route('google.redirect');
         }
     }
 }

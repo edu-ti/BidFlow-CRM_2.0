@@ -15,7 +15,7 @@ use Filament\Notifications\Notification;
 use App\Models\Setting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Filament\Forms\Components\Grid;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 
 class ConfiguracoesEmpresa extends Page implements HasForms
@@ -34,7 +34,7 @@ class ConfiguracoesEmpresa extends Page implements HasForms
     public function mount(): void
     {
         $keys = [
-            'company_logo', 'razao_social', 'nome_fantasia', 'cnpj', 
+            'company_logo', 'company_logo_dark', 'razao_social', 'nome_fantasia', 'cnpj', 
             'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf',
             'telefone', 'celular', 'email', 'site', 'meta_global'
         ];
@@ -43,6 +43,7 @@ class ConfiguracoesEmpresa extends Page implements HasForms
         
         $this->form->fill([
             'company_logo' => $settings['company_logo'] ?? null,
+            'company_logo_dark' => $settings['company_logo_dark'] ?? null,
             'razao_social' => $settings['razao_social'] ?? null,
             'nome_fantasia' => $settings['nome_fantasia'] ?? null,
             'cnpj' => $settings['cnpj'] ?? null,
@@ -69,14 +70,25 @@ class ConfiguracoesEmpresa extends Page implements HasForms
                     ->tabs([
                         Tab::make('Dados Fiscais e Logo')
                             ->schema([
-                                FileUpload::make('company_logo')
-                                    ->label('Logo da Empresa')
-                                    ->image()
-                                    ->disk('public')
-                                    ->directory('logos')
-                                    ->maxSize(2048)
-                                    ->imagePreviewHeight('150')
-                                    ->columnSpanFull(),
+                                Grid::make(2)->schema([
+                                    FileUpload::make('company_logo')
+                                        ->label('Logo da Empresa (Modo Claro)')
+                                        ->image()
+                                        ->disk('public')
+                                        ->directory('logos')
+                                        ->maxSize(2048)
+                                        ->imagePreviewHeight('150')
+                                        ->columnSpan(1),
+                                        
+                                    FileUpload::make('company_logo_dark')
+                                        ->label('Logo da Empresa (Modo Escuro)')
+                                        ->image()
+                                        ->disk('public')
+                                        ->directory('logos')
+                                        ->maxSize(2048)
+                                        ->imagePreviewHeight('150')
+                                        ->columnSpan(1),
+                                ]),
                                 
                                 Section::make('Dados da Empresa')->schema([
                                     TextInput::make('razao_social')
@@ -197,7 +209,7 @@ class ConfiguracoesEmpresa extends Page implements HasForms
 
         DB::transaction(function () use ($data) {
             $settingKeys = [
-                'company_logo', 'razao_social', 'nome_fantasia', 'cnpj', 
+                'company_logo', 'company_logo_dark', 'razao_social', 'nome_fantasia', 'cnpj', 
                 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf',
                 'telefone', 'celular', 'email', 'site', 'meta_global'
             ];

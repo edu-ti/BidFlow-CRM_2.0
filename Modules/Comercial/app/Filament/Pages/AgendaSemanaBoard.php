@@ -35,13 +35,9 @@ class AgendaSemanaBoard extends Page implements HasTable
     protected function getHeaderActions(): array
     {
         return [
-            \Filament\Actions\CreateAction::make('create')
+            \Filament\Actions\Action::make('create')
                 ->label('+ Atividade')
-                ->model(TarefaAgenda::class)
-                ->form(fn (\Filament\Schemas\Schema $form) => \Modules\Comercial\Filament\Resources\TarefaAgendaResource::form($form)->getComponents())
-                ->after(function () {
-                    $this->loadDays();
-                })
+                ->url(fn (): string => \Modules\Comercial\Filament\Resources\TarefaAgendaResource::getUrl('create'))
                 ->color('success'),
         ];
     }
@@ -55,6 +51,11 @@ class AgendaSemanaBoard extends Page implements HasTable
     public function setViewMode($mode)
     {
         $this->viewMode = $mode;
+    }
+
+    public function goToEdit($id)
+    {
+        return redirect()->to(\Modules\Comercial\Filament\Resources\TarefaAgendaResource::getUrl('edit', ['record' => $id]));
     }
 
     public function setFilter($filter)

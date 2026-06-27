@@ -20,6 +20,29 @@ class TarefaAgenda extends Model
         //return TarefaAgendaFactory::new();
     }
 
+    protected static function booted()
+    {
+        static::saved(function ($tarefa) {
+            $user = auth()->user() ?? \App\Models\User::first(); // Fallback in case of console
+            if ($user && $user->google_access_token && in_array($user->google_sync_mode, ['unidirectional', 'bidirectional'])) {
+                $service = app(\App\Services\GoogleCalendarService::class);
+                if ($tarefa->google_event_id) {
+                    $service->updateEvent($tarefa, $user);
+                } else {
+                    $service->createEvent($tarefa, $user);
+                }
+            }
+        });
+
+        static::deleted(function ($tarefa) {
+            $user = auth()->user() ?? \App\Models\User::first();
+            if ($user && $user->google_access_token && in_array($user->google_sync_mode, ['unidirectional', 'bidirectional']) && $tarefa->google_event_id) {
+                $service = app(\App\Services\GoogleCalendarService::class);
+                $service->deleteEvent($tarefa->google_event_id, $user);
+            }
+        });
+    }
+
     public function oportunidade(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Oportunidade::class, 'oportunidade_id');

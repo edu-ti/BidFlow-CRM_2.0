@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'password', 'telefone', 'celular', 'cargo_funcao', 'avatar_url'])]
+#[Fillable(['name', 'email', 'password', 'telefone', 'celular', 'cargo_funcao', 'avatar_url', 'google_access_token', 'google_refresh_token', 'google_token_expires_at', 'google_sync_mode'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements HasAvatar
 {
@@ -30,6 +30,7 @@ class User extends Authenticatable implements HasAvatar
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'google_token_expires_at' => 'datetime',
         ];
     }
 
