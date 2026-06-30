@@ -1,45 +1,33 @@
 <?php
 
-namespace Modules\Consignado\Filament\Resources;
+namespace Modules\Consignado\Filament\Resources\EstoqueClienteResource\RelationManagers;
 
 use Filament\Forms;
-use Filament\Schemas\Schema;
-use Filament\Resources\Resource;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Modules\Consignado\Models\Saldo;
-use Modules\Consignado\Filament\Resources\SaldoResource\Pages;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class SaldoResource extends Resource
+class SaldosRelationManager extends RelationManager
 {
-    protected static ?string $model = Saldo::class;
-    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-cube';
-    protected static \UnitEnum|string|null $navigationGroup = 'Consignado';
-    protected static ?string $modelLabel = 'Saldo no Cliente';
-    protected static ?string $pluralModelLabel = 'Estoque nos Clientes';
+    protected static string $relationship = 'saldos';
+    protected static ?string $title = 'Itens em Estoque';
 
-    public static function canCreate(): bool
-    {
-        return false;
-    }
-
-    public static function form(Schema $schema): Schema
+    public function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {
         return $schema
             ->components([
-                // Read-only, or no form at all.
+                //
             ]);
     }
 
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('produto_id')
             ->columns([
-                Tables\Columns\TextColumn::make('fornecedor.razao_social')
-                    ->label('Cliente/Fornecedor')
-                    ->searchable()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('produto.nome')
                     ->label('Produto')
                     ->searchable()
@@ -103,23 +91,17 @@ class SaldoResource extends Resource
                     }),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('fornecedor_id')
-                    ->label('Filtrar por Cliente')
-                    ->relationship('fornecedor', 'razao_social'),
+                //
+            ])
+            ->headerActions([
+                //
             ])
             ->actions([
-                // No edit/delete actions, balance is managed via Movimentações
+                //
             ])
             ->bulkActions([
                 //
             ])
             ->defaultSort('quantidade', 'desc');
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ManageSaldos::route('/'),
-        ];
     }
 }

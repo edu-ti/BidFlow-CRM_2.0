@@ -16,11 +16,13 @@ class LicitacaoResource extends Resource
 
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-briefcase';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Vendas Públicas';
+    protected static \UnitEnum|string|null $navigationGroup = 'Licitações';
+
+    protected static ?string $navigationLabel = 'Gerenciar Pregões';
 
     protected static ?string $modelLabel = 'Pregão';
 
-    protected static ?string $pluralModelLabel = 'Pregões';
+    protected static ?string $pluralModelLabel = 'Gerenciar Pregões';
 
     protected static ?string $slug = 'pregoes';
 
@@ -187,19 +189,55 @@ class LicitacaoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('numero_edital')
-                    ->label('EDITAL')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('orgao_razao_social')
-                    ->label('ÓRGÃO')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('data_disputa')
-                    ->label('DATA DA DISPUTA')
-                    ->date('d/m/Y')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('STATUS')
-                    ->searchable(),
+                Tables\Columns\Layout\Stack::make([
+                    Tables\Columns\Layout\Split::make([
+                        Tables\Columns\TextColumn::make('numero_edital')
+                            ->weight('bold')
+                            ->color('primary')
+                            ->searchable()
+                            ->formatStateUsing(fn ($state) => "#" . $state),
+                        
+                        Tables\Columns\TextColumn::make('status')
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                'Em análise' => 'warning',
+                                'Acolhimento de propostas' => 'info',
+                                'Homologado' => 'success',
+                                'Adjudicado' => 'success',
+                                'Revogado' => 'danger',
+                                'Fracassado' => 'danger',
+                                'Anulado' => 'danger',
+                                'Suspenso' => 'gray',
+                                default => 'primary',
+                            }),
+                    ]),
+                    
+                    Tables\Columns\TextColumn::make('orgao_razao_social')
+                        ->size('lg')
+                        ->weight('bold')
+                        ->searchable()
+                        ->wrap(),
+                        
+                    Tables\Columns\Layout\Split::make([
+                        Tables\Columns\TextColumn::make('orgao_cidade')
+                            ->icon('heroicon-o-map-pin')
+                            ->color('gray')
+                            ->formatStateUsing(fn ($record) => $record->orgao_cidade . '/' . $record->orgao_estado),
+                            
+                        Tables\Columns\TextColumn::make('data_disputa')
+                            ->icon('heroicon-o-calendar')
+                            ->color('gray')
+                            ->date('d/m/Y'),
+                            
+                        Tables\Columns\TextColumn::make('modalidade')
+                            ->icon('heroicon-o-tag')
+                            ->color('gray'),
+                    ])->from('md'),
+                ])->space(3),
+            ])
+            ->contentGrid([
+                'md' => 1,
+                'xl' => 2,
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')

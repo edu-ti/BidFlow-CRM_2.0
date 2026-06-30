@@ -32,6 +32,7 @@ class Licitacao extends Model
         'data_disputa',
         'hora_disputa',
         'status',
+        'valor_estimado',
     ];
 
     protected $casts = [
@@ -51,5 +52,10 @@ class Licitacao extends Model
     public function observacoes()
     {
         return $this->hasMany(LicitacaoObservacao::class, 'licitacao_id');
+    }
+
+    public function chatMensagens()
+    {
+        return $this->hasMany(ChatMensagem::class, 'licitacao_id');
     }
 }

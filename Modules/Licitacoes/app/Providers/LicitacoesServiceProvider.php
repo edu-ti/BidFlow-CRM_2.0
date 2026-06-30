@@ -22,7 +22,10 @@ class LicitacoesServiceProvider extends ModuleServiceProvider
      *
      * @var string[]
      */
-    // protected array $commands = [];
+    protected array $commands = [
+        \Modules\Licitacoes\Console\ImportarOportunidadesCommand::class,
+        \Modules\Licitacoes\Console\GerarBoletimDiarioCommand::class,
+    ];
 
     /**
      * Provider classes to register.

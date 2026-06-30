@@ -16,4 +16,11 @@ class ListLicitacoes extends ListRecords
             Actions\CreateAction::make()->label('Novo Pregão'),
         ];
     }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            \Modules\Licitacoes\Filament\Resources\LicitacaoResource\Widgets\LicitacoesOverview::class,
+        ];
+    }
 }

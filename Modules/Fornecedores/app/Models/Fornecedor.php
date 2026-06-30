@@ -35,4 +35,9 @@ class Fornecedor extends Model
         'status',
         'exibir_no_funil_fornecedores',
     ];
+
+    public function saldos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\Modules\Consignado\Models\Saldo::class, 'fornecedor_id');
+    }
 }
