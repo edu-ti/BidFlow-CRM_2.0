@@ -12,16 +12,19 @@ class LicitacaoItem extends Model
 
     protected $fillable = [
         'licitacao_id',
+        'numero_lote',
         'numero_item',
         'descricao',
-        'fabricante',
-        'modelo',
-        'marca',
-        'valor_unitario',
         'quantidade',
-        'valor_total',
+        'valor_unit_referencia',
         'status',
+        'tipo_cota',
     ];
+
+    public function participantes()
+    {
+        return $this->hasMany(LicitacaoItemParticipante::class, 'licitacao_item_id');
+    }
 
     public function licitacao()
     {

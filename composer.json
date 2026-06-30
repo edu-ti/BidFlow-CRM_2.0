@@ -49,6 +49,9 @@
             "Modules\\Comercial\\": "Modules/Comercial/app/",
             "Modules\\Comercial\\Database\\Factories\\": "Modules/Comercial/database/factories/",
             "Modules\\Comercial\\Database\\Seeders\\": "Modules/Comercial/database/seeders/",
+            "Modules\\Clientes\\": "Modules/Clientes/app/",
+            "Modules\\Clientes\\Database\\Factories\\": "Modules/Clientes/database/factories/",
+            "Modules\\Clientes\\Database\\Seeders\\": "Modules/Clientes/database/seeders/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

@@ -22,53 +22,91 @@ class ItensRelationManager extends RelationManager
     {
         return $schema
             ->schema([
-                Forms\Components\TextInput::make('numero_item')
-                    ->label('Item')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('descricao')
-                    ->label('Descrição')
-                    ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('fabricante')
-                    ->label('Fabricante')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('modelo')
-                    ->label('Modelo')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('marca')
-                    ->label('Marca')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('valor_unitario')
-                    ->label('Valor Unitário')
-                    ->numeric()
-                    ->prefix('R$')
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        $qtd = $get('quantidade') ?? 1;
-                        $set('valor_total', floatval($state) * floatval($qtd));
-                    }),
-                Forms\Components\TextInput::make('quantidade')
-                    ->label('Qtd')
-                    ->numeric()
-                    ->default(1)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        $vu = $get('valor_unitario') ?? 0;
-                        $set('valor_total', floatval($state) * floatval($vu));
-                    }),
-                Forms\Components\TextInput::make('valor_total')
-                    ->label('Valor Total')
-                    ->numeric()
-                    ->prefix('R$')
-                    ->readOnly(),
-                Forms\Components\Select::make('status')
-                    ->label('Status')
-                    ->options([
-                        'Ganho' => 'Ganho',
-                        'Perdido' => 'Perdido',
-                        'Desclassificado' => 'Desclassificado',
+                \Filament\Schemas\Components\Section::make('DADOS DO ITEM (REFERÊNCIA)')
+                    ->schema([
+                        Forms\Components\TextInput::make('numero_lote')
+                            ->label('Nº do Lote (Opcional)')
+                            ->placeholder('Ex: Lote 01')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('numero_item')
+                            ->label('Nº do Item')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('descricao')
+                            ->label('Descrição')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                        Forms\Components\TextInput::make('quantidade')
+                            ->label('Quantidade')
+                            ->numeric()
+                            ->default(1),
+                        Forms\Components\TextInput::make('valor_unit_referencia')
+                            ->label('Valor Unit. Referência (R$)')
+                            ->numeric()
+                            ->prefix('R$'),
+                        Forms\Components\Select::make('status')
+                            ->label('Status do Item')
+                            ->options([
+                                'Em Análise' => 'Em Análise',
+                                'Acolhimento de Proposta' => 'Acolhimento de Proposta',
+                                'Homologado' => 'Homologado',
+                                'Revogado' => 'Revogado',
+                                'Fracassado' => 'Fracassado',
+                                'Anulado' => 'Anulado',
+                                'Suspenso' => 'Suspenso',
+                                'Adjudicado' => 'Adjudicado',
+                                'Deserto' => 'Deserto',
+                            ])
+                            ->default('Acolhimento de Proposta'),
+                        Forms\Components\Select::make('tipo_cota')
+                            ->label('Tipo de Cota')
+                            ->options([
+                                'Ampla Concorrência' => 'Ampla Concorrência',
+                                'Cota Exclusiva' => 'Cota Exclusiva',
+                                'Cota Reservada' => 'Cota Reservada',
+                            ])
+                            ->default('Ampla Concorrência'),
+                    ])->columns(2),
+
+                \Filament\Schemas\Components\Section::make('PARTICIPANTES')
+                    ->schema([
+                        Forms\Components\Repeater::make('participantes')
+                            ->relationship()
+                            ->schema([
+                                Forms\Components\Select::make('fornecedor_id')
+                                    ->label('Fornecedor')
+                                    ->relationship('fornecedor', 'razao_social')
+                                    ->searchable()
+                                    ->preload()
+                                    ->columnSpanFull(),
+                                Forms\Components\TextInput::make('fabricante_marca')
+                                    ->label('Fabricante/Marca')
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('modelo')
+                                    ->label('Modelo')
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('valor_unitario')
+                                    ->label('Valor Unitário (R$)')
+                                    ->numeric()
+                                    ->prefix('R$'),
+                                Forms\Components\Select::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        'Classificada' => 'Classificada',
+                                        'Desclassificada' => 'Desclassificada',
+                                        'Inabilitada' => 'Inabilitada',
+                                        'Em Negociação' => 'Em Negociação',
+                                        'Aceita' => 'Aceita',
+                                        'Adjudicado' => 'Adjudicado',
+                                        'Homologado' => 'Homologado',
+                                    ])
+                                    ->default('Classificada'),
+                            ])
+                            ->columns(2)
+                            ->addActionLabel('Adicionar Participante')
+                            ->collapsible()
+                            ->defaultItems(0),
                     ]),
             ]);
     }
@@ -78,23 +116,26 @@ class ItensRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('numero_item')
             ->columns([
+                Tables\Columns\TextColumn::make('numero_lote')->label('LOTE'),
                 Tables\Columns\TextColumn::make('numero_item')->label('ITEM'),
-                Tables\Columns\TextColumn::make('descricao')->label('DESCRIÇÃO')->limit(30),
-                Tables\Columns\TextColumn::make('fabricante')->label('FABRICANTE'),
-                Tables\Columns\TextColumn::make('modelo')->label('MODELO'),
-                Tables\Columns\TextColumn::make('valor_unitario')->label('V. UNIT')->money('BRL'),
-                Tables\Columns\TextColumn::make('valor_total')->label('V. TOTAL')->money('BRL'),
-                Tables\Columns\TextColumn::make('marca')->label('MARCA'),
+                Tables\Columns\TextColumn::make('descricao')->label('DESCRIÇÃO')->limit(40),
+                Tables\Columns\TextColumn::make('quantidade')->label('QTD'),
+                Tables\Columns\TextColumn::make('valor_unit_referencia')->label('VALOR REF.')->money('BRL'),
                 Tables\Columns\TextColumn::make('status')->label('STATUS')->badge(),
+                Tables\Columns\TextColumn::make('tipo_cota')->label('COTA'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                \Filament\Actions\CreateAction::make()->label('Adicionar Nova Proposta'),
+                \Filament\Actions\CreateAction::make()->label('Adicionar Novo Item')
+                    ->modalHeading('Adicionar Item')
+                    ->modalWidth('5xl'),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\EditAction::make()
+                    ->modalHeading('Editar Item Completo')
+                    ->modalWidth('5xl'),
                 \Filament\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
